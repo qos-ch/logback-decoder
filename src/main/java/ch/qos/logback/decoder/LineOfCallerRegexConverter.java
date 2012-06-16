@@ -12,10 +12,15 @@
  */
 package ch.qos.logback.decoder;
 
+import ch.qos.logback.classic.pattern.ClassicConverter;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+
 /**
- * 
+ * Converts a line-of-caller pattern into a regular expression
  */
-public class AccessDecode {
-
-
+public class LineOfCallerRegexConverter extends ClassicConverter {
+  
+  public String convert(ILoggingEvent le) {
+    return "\\d+|\\?";
+  }
 }

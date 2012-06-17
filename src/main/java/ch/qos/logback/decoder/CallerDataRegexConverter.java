@@ -17,11 +17,12 @@ import java.io.InputStream;
 import ch.qos.logback.core.pattern.DynamicConverter;
 
 /**
- * Converts a file-of-caller pattern into a regular expression
+ * Converts a caller-data pattern into a regular expression
  */
-public class FileOfCallerRegexConverter extends DynamicConverter<InputStream> {
+public class CallerDataRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.FILE_OF_CALLER_REGEX;
+    return RegexPatterns.CALLER_STACKTRACE_REGEX;
   }
 }
+

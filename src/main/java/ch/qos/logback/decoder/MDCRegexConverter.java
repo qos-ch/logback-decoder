@@ -17,11 +17,11 @@ import java.io.InputStream;
 import ch.qos.logback.core.pattern.DynamicConverter;
 
 /**
- * Converts a file-of-caller pattern into a regular expression
+ * Converts a MDC pattern into a regular expression
  */
-public class FileOfCallerRegexConverter extends DynamicConverter<InputStream> {
+public class MDCRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.FILE_OF_CALLER_REGEX;
+    return RegexPatterns.MDC_REGEX;
   }
 }

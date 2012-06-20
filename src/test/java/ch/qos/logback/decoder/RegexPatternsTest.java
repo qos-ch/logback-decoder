@@ -14,7 +14,12 @@ package ch.qos.logback.decoder;
 
 import static org.junit.Assert.*;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.junit.Test;
+
+import ch.qos.logback.classic.spi.CallerData;
 
 /**
  * Validates the regular expressions in {@link RegexPatterns}
@@ -23,14 +28,28 @@ import org.junit.Test;
  */
 public class RegexPatternsTest {
 
+  // TODO: To conform with JUnit best practices, separate each test 
+  // function into its own test case, and put individual assertions 
+  // into their own test functions there. The tests will be longer
+  // (at least in terms of LOC), but the testability will have
+  // improved!
+  
   @Test
   public void testDateRegexMatches() {
     final String REGEX = RegexPatterns.Common.DATE_ISO8601_REGEX;
 
     assertTrue("2006-10-20 14:06:49,812".matches(REGEX));
+    assertFalse("".matches(REGEX));
     
-    // TODO: How do we test different locales?
-    // TODO: Need to test various date patterns (%d{HH:mm:ss.SSS})
+    Pattern pattern = Pattern.compile(String.format("(%1$s) <.*>: .*\\n", REGEX));
+    
+    Matcher m = pattern.matcher("2006-10-20 14:06:49,812 <FooBar.java:24>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("2006-10-20 14:06:49,812", m.group(1).toString());
+    
+    m = pattern.matcher(" <FooBar.java:24>: hello world!\n");
+    assertFalse(m.find());
   }
 
   @Test
@@ -44,6 +63,39 @@ public class RegexPatternsTest {
     assertFalse("abc123".matches(REGEX));
     assertFalse("abc".matches(REGEX));
     assertFalse(" .!@#$%^&*()_+`".matches(REGEX));
+    assertFalse("".matches(REGEX));
+    
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} .*\\.java:(%1$s) <.*>: .*\\n", REGEX));
+    
+    Matcher m = pattern.matcher("06/20/2012 FooBar.java:24 <TRACE>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("24", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 FooBar.java:1234567890 <TRACE>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("1234567890", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 FooBar.java:? <TRACE>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("?", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 FooBar.java:123? <TRACE>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 FooBar.java:abc123 <TRACE>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 FooBar.java:abc <TRACE>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 FooBar.java:.!@#$%^&*()_+` <TRACE>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 FooBar.java: <TRACE>: hello world!\n");
+    assertFalse(m.find());
   }
   
   @Test
@@ -56,6 +108,32 @@ public class RegexPatternsTest {
     assertFalse("/FooBar.java".matches(REGEX));
     assertFalse("Foobar!@#$%.java".matches(REGEX));
     assertFalse("Foobar.java!@#$%".matches(REGEX));
+    assertFalse("".matches(REGEX));
+    
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} (%1$s) <.*>: .*\\n", REGEX));
+    
+    Matcher m = pattern.matcher("06/20/2012 FooBar.java <TRACE>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("FooBar.java", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 .java <TRACE>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 FooBar <TRACE>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 /FooBar.java <TRACE>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 Foobar!@#$%.java <TRACE>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 Foobar.java!@#$% <TRACE>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 <TRACE>: hello world!\n");
+    assertFalse(m.find());
   }
 
   @Test
@@ -65,12 +143,31 @@ public class RegexPatternsTest {
     assertTrue("00001234".matches(REGEX));
     assertTrue("1234567890".matches(REGEX));
     assertFalse("123FooBar456".matches(REGEX));
+    assertFalse("".matches(REGEX));
+    
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} (%1$s) <.*>: .*\\n", REGEX));
+    
+    Matcher m = pattern.matcher("06/20/2012 00001234 <TRACE>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("00001234", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 1234567890 <TRACE>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("1234567890", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 123FooBar456 <TRACE>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 <TRACE>: hello world!\n");
+    assertFalse(m.find());
   }
   
   @Test
   public void testLevelRegexMatches() {
     final String REGEX = RegexPatterns.LEVEL_REGEX;
-  
+    
     assertTrue("OFF".matches(REGEX));
     assertTrue("WARN".matches(REGEX));
     assertTrue("ERROR".matches(REGEX));
@@ -78,9 +175,55 @@ public class RegexPatternsTest {
     assertTrue("DEBUG".matches(REGEX));
     assertTrue("TRACE".matches(REGEX));
     assertTrue("ALL".matches(REGEX));
-    assertFalse("Off".matches(REGEX));
     assertFalse("DebuG".matches(REGEX));
     assertFalse("INFO123".matches(REGEX));
+    assertFalse("".matches(REGEX));
+    
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(%1$s)>: .*\\n", REGEX));
+    
+    Matcher m = pattern.matcher("06/20/2012 <OFF>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("OFF", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <WARN>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("WARN", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <ERROR>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("ERROR", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <INFO>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("INFO", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <DEBUG>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("DEBUG", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <TRACE>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("TRACE", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <ALL>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("ALL", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <DebuG>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 <INFO123>: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 <>: hello world!\n");
+    assertFalse(m.find());
   }
   
   @Test
@@ -90,6 +233,23 @@ public class RegexPatternsTest {
     assertTrue("main".matches(REGEX));
     assertTrue("thread".matches(REGEX));
     assertTrue("thread-123".matches(REGEX));
+    assertTrue("any string is okay".matches(REGEX));
+    assertFalse("".matches(REGEX));
+    
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*> \\[(%1$s)\\]: .*\\n", REGEX));
+    
+    Matcher m = pattern.matcher("06/20/2012 <DEBUG> [MyThreadName]: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("MyThreadName", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <DEBUG> [any string is okay]: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("any string is okay", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <DEBUG> []: hello world!\n");
+    assertFalse(m.find());
   }
   
   @Test
@@ -99,15 +259,30 @@ public class RegexPatternsTest {
     assertTrue("MyLoggerName".matches(REGEX));
     assertTrue("a.b.c.foo".matches(REGEX));
     assertTrue("x.y.foo.MyClassName".matches(REGEX));
+    assertTrue("any string is okay".matches(REGEX));
+    assertFalse("".matches(REGEX));
     
-    // TODO: Need to test for different patterns based on length specifier (%c{10})
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*> \\[(%1$s)\\]: .*\\n", REGEX));
+    
+    Matcher m = pattern.matcher("06/20/2012 <DEBUG> [MyLoggerName]: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("MyLoggerName", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <DEBUG> [any string is okay]: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("any string is okay", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <DEBUG> []: hello world!\n");
+    assertFalse(m.find());
   }
   
   @Test
   public void testMessageRegexMatches() {
     final String REGEX = RegexPatterns.MESSAGE_REGEX;
     
-    final String MSG_WITH_STACKTRACE = "I couldn't do it, because of this exception\n" +
+    final String MSG_WITH_STACKTRACE = "I couldn't do it because of this exception\n" +
         "mainPackage.foo.bar.TestException: Houston we have a problem\n" +
         "  at mainPackage.foo.bar.TestThrower.fire(TestThrower.java:22)\n" +
         "  at mainPackage.foo.bar.TestThrower.readyToLaunch(TestThrower.java:17)\n" +
@@ -117,15 +292,49 @@ public class RegexPatternsTest {
     
     assertTrue(MSG_WITH_STACKTRACE.matches(REGEX));
     assertTrue(SAMPLEMSG.matches(REGEX));
+    assertFalse("".matches(REGEX));
+    
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*>: (%1$s) !!!\\n", REGEX));
+    
+    Matcher m = pattern.matcher("06/20/2012 <DEBUG>: "+ MSG_WITH_STACKTRACE + " !!!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals(MSG_WITH_STACKTRACE, m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <DEBUG>: "+ SAMPLEMSG + " !!!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals(SAMPLEMSG, m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <DEBUG>: !!!\n");
+    assertFalse(m.find());
   }
   
   @Test
   public void testClassOfCallerRegexMatches() {
     final String REGEX = RegexPatterns.CLASS_OF_CALLER_REGEX;
 
-    assertTrue("MyLoggerName".matches(REGEX));
+    assertTrue("MyClassName".matches(REGEX));
+    assertTrue("?".matches(REGEX));
+    assertFalse("a.b.c.d.MyClassName".matches(REGEX));
+    assertFalse("MyClassName with spaces".matches(REGEX));
+    assertFalse("MyClassName***".matches(REGEX));
+    assertFalse("".matches(REGEX));
     
-    // TODO: Need to test for different patterns based on length specifier (%C{10})
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(%1$s)>: .*", REGEX));
+
+    Matcher m = pattern.matcher("06/20/2012 <MyClassName>: My class name is a Java identifier\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("MyClassName", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <?>: I don't know my own class name\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("?", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <>: hello world!\n");
+    assertFalse(m.find());
   }
   
   @Test
@@ -133,6 +342,19 @@ public class RegexPatternsTest {
     final String REGEX = RegexPatterns.METHOD_OF_CALLER_REGEX;
 
     assertTrue("methodName".matches(REGEX));
+    assertFalse("methodName with spaces".matches(REGEX));
+    assertFalse("methodName***".matches(REGEX));
+    assertFalse("".matches(REGEX));
+    
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(%1$s)>: .*", REGEX));
+
+    Matcher m = pattern.matcher("06/20/2012 <toString>: hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("toString", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012 <>: hello world!\n");
+    assertFalse(m.find());
   }
   
   @Test
@@ -140,7 +362,60 @@ public class RegexPatternsTest {
     final String REGEX = RegexPatterns.MDC_REGEX;
 
     assertTrue("key=value".matches(REGEX));
-    assertTrue("k0=v0, k1=v1, k2=v3".matches(REGEX));
+    assertTrue("k0=v0, k1=v1, k2=v2".matches(REGEX));
+    assertTrue("k0=v0,k1=v1,k2=v2".matches(REGEX));
+    assertFalse("key = value".matches(REGEX));
+    assertFalse("k0 = v0, k1 = v1, k2 = v2".matches(REGEX));
+    assertFalse("k0:v0, k1:v1, k2:v2".matches(REGEX));
+    assertFalse("k:v".matches(REGEX));
+    assertFalse("k0 with spaces=v0 with spaces, k1 with spaces=v1 with spaces, k2=v2".matches(REGEX));
+    assertFalse("".matches(REGEX));
+    
+    // this regex pattern has its own capture groups (one for key and another for value)
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <INFO> (%1$s) : .*", REGEX));
+    
+    Matcher m = pattern.matcher("06/20/2012 <INFO> key=value : hello world!");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("key=value", m.group(1).toString());
+    assertEquals("key", m.group(2).toString());
+    assertEquals("value", m.group(3).toString());
+    
+    m = pattern.matcher("06/20/2012 <INFO> k0=v0, k1=v1, k2=v2 : hello world!");
+    for (int i = 0; i < 3; i++) {
+      assertTrue(m.find());
+      assertTrue(m.groupCount() > 0);
+      assertEquals("k" + i + "=v" + i, m.group(1).toString()); // k0=v0
+      assertEquals("k" + i, m.group(2).toString()); // k0
+      assertEquals("v" + i, m.group(3).toString()); // v0
+    }
+    
+    m = pattern.matcher("06/20/2012 <INFO> k0=v0,k1=v1,k2=v2 : hello world!");
+    for (int i = 0; i < 3; i++) {
+      assertTrue(m.find());
+      assertTrue(m.groupCount() > 0);
+      assertEquals("k" + i + "=v" + i, m.group(1).toString()); // k0=v0
+      assertEquals("k" + i, m.group(2).toString()); // k0
+      assertEquals("v" + i, m.group(3).toString()); // v0
+    }
+    
+    m = pattern.matcher("06/20/2012 <INFO> key = value: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 <INFO> k0 = v0, k1 = v1, k2 = v2 : hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 <INFO> k0:v0, k1:v1, k2:v2 : hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 <INFO> k:v : hello world!\n");
+    assertFalse(m.find());
+        
+    m = pattern.matcher("06/20/2012 <INFO> k0 with spaces=v0 with spaces, k1 with spaces=v1 with spaces, k2=v2: hello world!\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012 <INFO>: hello world!\n");
+    assertFalse(m.find());
   }
   
   @Test
@@ -212,6 +487,36 @@ public class RegexPatternsTest {
     assertTrue(STACKTRACE2.matches(REGEX));
     assertTrue(STACKTRACE3.matches(REGEX));
     assertTrue(STACKTRACE4.matches(REGEX));
+    assertFalse("java.lang.NullPointerException: Houston we have a problem".matches(REGEX));
+    assertFalse("".matches(REGEX));
+    
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: EXCEPTION - (%1$s)\\n", REGEX));
+
+    Matcher m = pattern.matcher("06/20/2012: EXCEPTION - "+ STACKTRACE1 +"\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals(STACKTRACE1, m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012: EXCEPTION - "+ STACKTRACE2 +"\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals(STACKTRACE2, m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012: EXCEPTION - "+ STACKTRACE3 +"\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals(STACKTRACE3, m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012: EXCEPTION - "+ STACKTRACE4 +"\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals(STACKTRACE4, m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012: EXCEPTION - java.lang.NullPointerException: Houston we have a problem\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012: EXCEPTION - \n");
+    assertFalse(m.find());
   }
   
   @Test
@@ -221,18 +526,71 @@ public class RegexPatternsTest {
     assertTrue("markerName".matches(REGEX));
     assertTrue("parent1Marker [ child ]".matches(REGEX));
     assertTrue("parent2Marker [ child1, child2 ]".matches(REGEX));
+    assertFalse("".matches(REGEX));
+    
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: <(%1$s)> .*\\n", REGEX));
+
+    Matcher m = pattern.matcher("06/20/2012: <markerName> hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("markerName", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012: <parent1marker [ child ]> hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("parent1marker [ child ]", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012: <parent2marker [ child1, child2 ]> hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("parent2marker [ child1, child2 ]", m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012: <> hello world!\n");
+    assertFalse(m.find());
   }
   
   @Test
   public void testCallerDataRegexMatches() {
-    final String CALLER_STACKTRACE = 
+    final String CALLER_STACKTRACE1 = 
+        "Caller+0   at mainPackage.sub.sample.Bar.sampleMethodName(Bar.java:22)";
+    final String CALLER_STACKTRACE2 = 
         "Caller+0   at mainPackage.sub.sample.Bar.sampleMethodName(Bar.java:22)\n" +
         "Caller+1   at mainPackage.sub.sample.Bar.createLoggingRequest(Bar.java:17)\n" +
         "Caller+2   at mainPackage.ConfigTester.main(ConfigTester.java:38)";
-
+    final String CALLER_STACKTRACE3 = 
+        CallerData.CALLER_DATA_NA + "   at mainPackage.sub.sample.Bar.sampleMethodName(Bar.java:22)\n" +
+        CallerData.CALLER_DATA_NA + "   at mainPackage.sub.sample.Bar.createLoggingRequest(Bar.java:17)\n" +
+        CallerData.CALLER_DATA_NA + "   at mainPackage.ConfigTester.main(ConfigTester.java:38)";
+    
     final String REGEX = RegexPatterns.CALLER_STACKTRACE_REGEX;
     
-    assertTrue(CALLER_STACKTRACE.matches(REGEX));
+    assertTrue(CALLER_STACKTRACE1.matches(REGEX));
+    assertTrue(CALLER_STACKTRACE2.matches(REGEX));
+    assertFalse("java.lang.NullPointerException: Houston we have a problem".matches(REGEX));
+    assertFalse("".matches(REGEX));
+    
+    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: <.*> .*\\n(%1$s)\\n", REGEX));
+
+    Matcher m = pattern.matcher("06/20/2012: <TRACE> hello world!\n"+ CALLER_STACKTRACE1 +"\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals(CALLER_STACKTRACE1, m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012: <TRACE> hello world!\n"+ CALLER_STACKTRACE2 +"\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals(CALLER_STACKTRACE2, m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012: <TRACE> hello world!\n"+ CALLER_STACKTRACE3 +"\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals(CALLER_STACKTRACE3, m.group(1).toString());
+    
+    m = pattern.matcher("06/20/2012: <TRACE> hello world!\njava.lang.NullPointerException: Houston we have a problem\n");
+    assertFalse(m.find());
+    
+    m = pattern.matcher("06/20/2012: <TRACE> hello world!\n");
+    assertFalse(m.find());
   }
   
 }

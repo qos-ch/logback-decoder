@@ -39,11 +39,6 @@ public interface FieldCapturer<E> {
    * @return true if this instance is a placeholder, false otherwise.
    */
   boolean isPlaceHolder();
-  /**
-   * Some capturer are
-   * @return
-   */
-  boolean isCapturing();
 
   /**
    * Given fieldAsStr, sets the appropriate field of the event.

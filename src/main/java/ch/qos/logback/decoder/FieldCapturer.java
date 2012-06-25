@@ -13,42 +13,38 @@
 package ch.qos.logback.decoder;
 
 /**
- * A capturing group (as in regular expressions) for a particular logback
- * layout pattern.
- * 
- * @param <E>
- *          An {@link Event} type (XXX: Should this actually be "E extends Event"?)
+ * A FieldCapturer is responsible for producing the regular expression matching a
+ * given field of an event of type E. Given an appropriate string value, a
+ * FieldCapturer will set the field of E when its {@link #captureField(Object, String)}
+ * is called.
+ *
+ * @param <E> some event type
+ *
  */
-public abstract class FieldCapturer<E> {
-
-  protected boolean capturing;
-  protected String  regexPattern;
+public interface FieldCapturer<E> {
 
   /**
    * Gets the regular expression pattern used to parse a field from an event
    * 
    * @return the pattern as a string
    */
-  public String getRegexPattern() {
-    return regexPattern;
-  }
+  public String getRegexPattern();
+
 
   /**
-   * Determines if this capturer is in the process of capturing fields
-   * 
-   * @return <c>true</c> if capture is in progress; <c>false</c> otherwise
+   * Some FieldCapturer instances are just place holders. If this method returns
+   * true, {@link #captureField(Object, String)} method should not be called. More
+   * importantly, the text matching the regex need not be stored/captured.
+   *
+   * @return true if this instance is a placeholder, false otherwise.
    */
-  public boolean isCapturing() {
-    return capturing;
-  }
+  boolean isPlaceHolder();
 
   /**
-   * Parses a field from an event
-   * 
-   * @param event
-   *            the event to be evaluated
+   * Given fieldAsStr, sets the appropriate field of the event.
+   *
+   * @param event the event whose field should be captured
    * @param fieldAsStr
-   *            (XXX: I'm not entirely sure. I'm guessing this is the field's layout pattern. e.g., "%msg") 
    */
   abstract void captureField(E event, String fieldAsStr);
 

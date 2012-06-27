@@ -24,6 +24,13 @@ package ch.qos.logback.decoder;
 public interface FieldCapturer<E> {
 
   /**
+   * Gets the next FieldCapturer in the chain
+   * 
+   * @return the FieldCapturer (or null if at end of chain)
+   */
+  FieldCapturer<E> next();
+  
+  /**
    * Gets the regular expression pattern used to parse a field from an event
    * 
    * @return the pattern as a string

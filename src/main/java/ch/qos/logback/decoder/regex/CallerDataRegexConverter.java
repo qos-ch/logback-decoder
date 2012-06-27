@@ -10,18 +10,19 @@
  * under the terms of the GNU Lesser General Public License version 2.1
  * as published by the Free Software Foundation.
  */
-package ch.qos.logback.decoder;
+package ch.qos.logback.decoder.regex;
 
 import java.io.InputStream;
 
 import ch.qos.logback.core.pattern.DynamicConverter;
 
 /**
- * Converts a relative-time pattern into a regular expression
+ * Converts a caller-data pattern into a regular expression
  */
-public class RelativeTimeRegexConverter extends DynamicConverter<InputStream> {
+public class CallerDataRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.RELATIVE_TIME_REGEX;
+    return RegexPatterns.CALLER_STACKTRACE_REGEX;
   }
 }
+

@@ -10,18 +10,18 @@
  * under the terms of the GNU Lesser General Public License version 2.1
  * as published by the Free Software Foundation.
  */
-package ch.qos.logback.decoder;
+package ch.qos.logback.decoder.regex;
 
 import java.io.InputStream;
 
 import ch.qos.logback.core.pattern.DynamicConverter;
 
 /**
- * Converts a property pattern into a regular expression
+ * Converts a line-of-caller pattern into a regular expression
  */
-public class PropertyRegexConverter extends DynamicConverter<InputStream> {
+public class LineOfCallerRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.PROPERTY_REGEX;
+    return RegexPatterns.LINE_OF_CALLER_REGEX;
   }
 }

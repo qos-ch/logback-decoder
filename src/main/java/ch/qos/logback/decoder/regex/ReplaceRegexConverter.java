@@ -10,18 +10,20 @@
  * under the terms of the GNU Lesser General Public License version 2.1
  * as published by the Free Software Foundation.
  */
-package ch.qos.logback.decoder;
+package ch.qos.logback.decoder.regex;
 
 import java.io.InputStream;
 
+import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.pattern.DynamicConverter;
 
 /**
- * Converts a MDC pattern into a regular expression
+ * Converts a replacer pattern into a regular expression
  */
-public class MDCRegexConverter extends DynamicConverter<InputStream> {
+public class ReplaceRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.MDC_REGEX;
+    return CoreConstants.EMPTY_STRING;
   }
 }
+

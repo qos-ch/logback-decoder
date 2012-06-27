@@ -10,18 +10,18 @@
  * under the terms of the GNU Lesser General Public License version 2.1
  * as published by the Free Software Foundation.
  */
-package ch.qos.logback.decoder;
+package ch.qos.logback.decoder.regex;
 
 import java.io.InputStream;
 
 import ch.qos.logback.core.pattern.DynamicConverter;
 
 /**
- * Converts a logger-name pattern into a regular expression
+ * Converts a line-separator pattern into a regular expression
  */
-public class LoggerRegexConverter extends DynamicConverter<InputStream> {
+public class LineSeparatorRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.LOGGER_NAME_REGEX;
+    return RegexPatterns.LINE_SEPARATOR_REGEX;
   }
 }

@@ -10,18 +10,18 @@
  * under the terms of the GNU Lesser General Public License version 2.1
  * as published by the Free Software Foundation.
  */
-package ch.qos.logback.decoder;
+package ch.qos.logback.decoder.regex;
 
 import java.io.InputStream;
 
 import ch.qos.logback.core.pattern.DynamicConverter;
 
 /**
- * Converts a thread-of-caller pattern into a regular expression
+ * Converts a file-of-caller pattern into a regular expression
  */
-public class ThreadRegexConverter extends DynamicConverter<InputStream> {
+public class FileOfCallerRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.THREAD_NAME_REGEX;
+    return RegexPatterns.FILE_OF_CALLER_REGEX;
   }
 }

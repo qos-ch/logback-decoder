@@ -10,18 +10,18 @@
  * under the terms of the GNU Lesser General Public License version 2.1
  * as published by the Free Software Foundation.
  */
-package ch.qos.logback.decoder;
+package ch.qos.logback.decoder.regex;
 
 import java.io.InputStream;
 
 import ch.qos.logback.core.pattern.DynamicConverter;
 
 /**
- * Converts a class-of-caller pattern into a regular expression
+ * Converts a extended-throwable-proxy pattern into a regular expression
  */
-public class ClassOfCallerRegexConverter extends DynamicConverter<InputStream> {
+public class ExtendedThrowableProxyRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.CLASS_OF_CALLER_REGEX;
+    return RegexPatterns.EXCEPTION_REGEX;
   }
 }

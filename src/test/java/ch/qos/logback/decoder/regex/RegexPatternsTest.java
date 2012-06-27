@@ -10,7 +10,7 @@
  * under the terms of the GNU Lesser General Public License version 2.1
  * as published by the Free Software Foundation.
  */
-package ch.qos.logback.decoder;
+package ch.qos.logback.decoder.regex;
 
 import static org.junit.Assert.*;
 
@@ -116,7 +116,7 @@ public class RegexPatternsTest {
   // into their own test functions there. The tests will be longer
   // (at least in terms of LOC), but the testability will have
   // improved!
-  
+ 
   @Test
   public void testDateRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.Common.DATE_ISO8601_REGEX;

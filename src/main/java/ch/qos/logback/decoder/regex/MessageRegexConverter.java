@@ -22,6 +22,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class MessageRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.Common.ANYTHING_MULTILINE_REGEX;
+    return "(" + RegexPatterns.Common.ANYTHING_MULTILINE_REGEX + ")";
   }
 }

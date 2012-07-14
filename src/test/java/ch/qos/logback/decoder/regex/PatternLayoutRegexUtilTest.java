@@ -55,7 +55,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void testDatePatternToRegex() {
-    final String REGEX = RegexPatterns.Common.DATE_ISO8601_REGEX;
+    final String REGEX = "(" + RegexPatterns.Common.DATE_ISO8601_REGEX + ")";
     
     for (String p : Arrays.asList("%d", "%date")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -67,7 +67,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void testLineOfCallerPatternToRegex() {
-    final String REGEX = RegexPatterns.LINE_OF_CALLER_REGEX;
+    final String REGEX = "(" + RegexPatterns.LINE_OF_CALLER_REGEX + ")";
     
     for (String p : Arrays.asList("%L", "%line")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -76,7 +76,7 @@ public class PatternLayoutRegexUtilTest {
   
   @Test
   public void testFileOfCallerPatternToRegex() {
-    final String REGEX = RegexPatterns.FILE_OF_CALLER_REGEX;
+    final String REGEX = "(" + RegexPatterns.FILE_OF_CALLER_REGEX + ")";
     
     for (String p : Arrays.asList("%F", "%file")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -85,7 +85,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void testRelativeTimePatternToRegex() {
-    final String REGEX = RegexPatterns.RELATIVE_TIME_REGEX;
+    final String REGEX = "(" + RegexPatterns.RELATIVE_TIME_REGEX + ")";
     
     for (String p : Arrays.asList("%r", "%relative")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -94,7 +94,7 @@ public class PatternLayoutRegexUtilTest {
   
   @Test
   public void testLevelPatternToRegex() {
-    final String REGEX = RegexPatterns.LEVEL_REGEX;
+    final String REGEX = "(" + RegexPatterns.LEVEL_REGEX + ")";
     
     for (String p : Arrays.asList("%le", "%level", "%p")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -103,7 +103,7 @@ public class PatternLayoutRegexUtilTest {
   
   @Test
   public void testThreadPatternToRegex() {
-    final String REGEX = RegexPatterns.THREAD_NAME_REGEX;
+    final String REGEX = "(" + RegexPatterns.THREAD_NAME_REGEX + ")";
     
     for (String p : Arrays.asList("%t", "%thread")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -112,7 +112,7 @@ public class PatternLayoutRegexUtilTest {
   
   @Test
   public void testLoggerPatternToRegex() {
-    final String REGEX = RegexPatterns.LOGGER_NAME_REGEX;
+    final String REGEX = "(" + RegexPatterns.LOGGER_NAME_REGEX + ")";
     
     for (String p : Arrays.asList("%lo", "%logger", "%c")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -123,7 +123,7 @@ public class PatternLayoutRegexUtilTest {
   
   @Test
   public void testMessagePatternToRegex() {
-    final String REGEX = RegexPatterns.MESSAGE_REGEX;
+    final String REGEX = "(" + RegexPatterns.MESSAGE_REGEX + ")";
     
     for (String p : Arrays.asList("%msg", "%message", "%m")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -132,7 +132,7 @@ public class PatternLayoutRegexUtilTest {
   
   @Test
   public void testClassOfCallerPatternToRegex() {
-    final String REGEX = RegexPatterns.CLASS_OF_CALLER_REGEX;
+    final String REGEX = "(" + RegexPatterns.CLASS_OF_CALLER_REGEX + ")";
     
     for (String p : Arrays.asList("%C", "%class")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -143,7 +143,7 @@ public class PatternLayoutRegexUtilTest {
   
   @Test
   public void testMethodOfCallerPatternToRegex() {
-    final String REGEX = RegexPatterns.METHOD_OF_CALLER_REGEX;
+    final String REGEX = "(" + RegexPatterns.METHOD_OF_CALLER_REGEX + ")";
     
     for (String p : Arrays.asList("%M", "%method")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -152,7 +152,7 @@ public class PatternLayoutRegexUtilTest {
   
   @Test
   public void testMDCPatternToRegex() {
-    final String REGEX = RegexPatterns.MDC_REGEX;
+    final String REGEX = "(" + RegexPatterns.MDC_REGEX + ")";
     
     for (String p : Arrays.asList("%X", "%mdc")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -161,7 +161,7 @@ public class PatternLayoutRegexUtilTest {
   
   @Test
   public void testThrowableProxyPatternToRegex() {
-    final String REGEX = RegexPatterns.EXCEPTION_REGEX;
+    final String REGEX = "(" + RegexPatterns.EXCEPTION_REGEX + ")";
 
     for (String p : Arrays.asList("%xEx", "%xException", "%xThrowable", "%rEx", "%rootException")) {
       assertEquals(REGEX, regexifier.toRegex(p));
@@ -170,24 +170,24 @@ public class PatternLayoutRegexUtilTest {
   
   @Test
   public void testMarkerPatternToRegex() {
-    final String REGEX = RegexPatterns.MARKER_REGEX;
+    final String REGEX = "(" + RegexPatterns.MARKER_REGEX + ")";
     
     assertEquals(REGEX, regexifier.toRegex("%marker"));
   }
   
   @Test
   public void testCallerDataPatternToRegex() {
-    final String REGEX = RegexPatterns.CALLER_STACKTRACE_REGEX;
+    final String REGEX = "(" + RegexPatterns.CALLER_STACKTRACE_REGEX + ")";
     
     assertEquals(REGEX, regexifier.toRegex("%caller"));
   }
   
   @Test
   public void testMixedPatternsToRegex() {
-    final String REGEX = RegexPatterns.Common.DATE_ISO8601_REGEX + " " + 
-        RegexPatterns.FILE_OF_CALLER_REGEX + ":" + 
-        RegexPatterns.LINE_OF_CALLER_REGEX + " " + 
-        RegexPatterns.Common.DATE_ISO8601_REGEX;
+    final String REGEX = "(" + RegexPatterns.Common.DATE_ISO8601_REGEX + ") " + 
+        "(" + RegexPatterns.FILE_OF_CALLER_REGEX + "):" + 
+        "(" + RegexPatterns.LINE_OF_CALLER_REGEX + ") " + 
+        "(" + RegexPatterns.Common.DATE_ISO8601_REGEX + ")";
     
     assertEquals(REGEX, regexifier.toRegex("%d %F:%L %d"));
   }

@@ -74,6 +74,15 @@
           <artifactId>commons-cli</artifactId>
           <version>${commons.cli.version}</version>
         </dependency>
+
+	<dependency>
+	  <groupId>com.google.code.regexp</groupId>
+	  <artifactId>named-regexp</artifactId>
+	  <version>0.1</version>
+	  <scope>system</scope>
+	  <systemPath>${project.basedir}/lib/named-regexp-0.1.jar</systemPath>
+	</dependency>
+
     </dependencies>
 
     <build>

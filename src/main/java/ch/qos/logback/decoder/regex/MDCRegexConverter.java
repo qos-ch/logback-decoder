@@ -22,6 +22,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class MDCRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.MDC_REGEX;
+    return "(" + RegexPatterns.MDC_REGEX + ")";
   }
 }

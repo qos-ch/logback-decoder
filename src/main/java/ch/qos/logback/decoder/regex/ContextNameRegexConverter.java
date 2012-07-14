@@ -22,6 +22,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class ContextNameRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.CONTEXT_NAME_REGEX;
+    return "(" + RegexPatterns.CONTEXT_NAME_REGEX + ")";
   }
 }

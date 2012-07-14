@@ -22,6 +22,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class FileOfCallerRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.FILE_OF_CALLER_REGEX;
+    return "(" + RegexPatterns.FILE_OF_CALLER_REGEX + ")";
   }
 }

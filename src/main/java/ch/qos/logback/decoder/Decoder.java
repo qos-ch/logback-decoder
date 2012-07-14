@@ -20,70 +20,65 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.decoder.regex.PatternLayoutRegexUtil;
 
 /**
- * 
+ * A Decoder parses information from a log string and produces an
+ * ILoggingEvent as a result.
  */
-public class Decoder {
+public abstract class Decoder {
   private final Logger logger;
+  private Pattern regexPattern;
+  private String layoutPattern;
   
   /**
-   * Constructs a DecoderBase
+   * Constructs a Decoder
    */
   public Decoder() {
-    logger = LoggerFactory.getLogger(getClass());
+    logger = LoggerFactory.getLogger(Decoder.class);
+  }
+  
+  /**
+   * Sets the layout pattern used for decoding
+   * 
+   * @param layoutPattern the desired layout pattern
+   */
+  public void setLayoutPattern(String layoutPattern) {
+    String regex = new PatternLayoutRegexUtil().toRegex(layoutPattern);
+    regexPattern = Pattern.compile(regex);
+  }
+  
+  /**
+   * Gets the layout pattern used for decoding
+   * 
+   * @return the layout pattern
+   */
+  public String getLayoutPattern() {
+    return layoutPattern; 
   }
   
   /**
    * Decodes a log line as an ILoggingEvent
-   *
-   * @param head the first FieldCapturer returned as a result
-   * of pattern parsing
+   * 
    * @param inputLine the log line to decode
-   * @return the decoded ILoggingEvent
+   * @return the decoded ILoggingEvent or <code>null</code> 
+   * if line cannot be decoded
    */
-  public ILoggingEvent decode(FieldCapturer<ILoggingEvent> head, String inputLine) {
+  public ILoggingEvent decode(String inputLine) {
 
-    FieldCapturer<ILoggingEvent> fieldCapturer = head;
-
-    // ---------- build the pattern string -----------------
-    StringBuilder sb = new StringBuilder();
-
-    while (fieldCapturer != null) {
-      String partialRegex = fieldCapturer.getRegexPattern();
-      if (fieldCapturer.isPlaceHolder()) {
-        sb.append(partialRegex);
-      } else {
-        sb.append("(").append(partialRegex).append(")");
-      }
-      fieldCapturer = fieldCapturer.next();
-    }
-  
-    // -------- do regex matching and capture fields --------
-    String regex = sb.toString();
-    Pattern pattern = Pattern.compile(regex);
-
-    LoggingEvent event = new LoggingEvent();
-    Matcher matcher = pattern.matcher(inputLine);
-
+    LoggingEvent event = null;
+    Matcher matcher = regexPattern.matcher(inputLine);
+    
     if (matcher.find()) {
-
-      int i = 0;
-      while (fieldCapturer != null) {
-        if (!fieldCapturer.isPlaceHolder()) {
-          String fieldAsStr = matcher.group(i);
-          i++;
-          // much of the work is done here
-          fieldCapturer.captureField(event, fieldAsStr);
+      int numMatches = matcher.groupCount();
+      if (numMatches > 0) {
+        event = new LoggingEvent();
+        for (int i = 0; i < numMatches; i++) {
+          logger.debug("{}) {}", i, matcher.group(i));
         }
-        fieldCapturer = fieldCapturer.next();
       }
-
-    } else {
-      logger.warn("Could not decode input line [" + inputLine + "]");
     }
-
     return event;
   }
-  
+
 }

@@ -22,6 +22,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class MarkerRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.MARKER_REGEX;
+    return "(" + RegexPatterns.MARKER_REGEX + ")";
   }
 }

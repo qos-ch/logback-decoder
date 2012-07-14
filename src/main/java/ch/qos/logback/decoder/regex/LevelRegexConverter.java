@@ -23,6 +23,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class LevelRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.LEVEL_REGEX;
+    return "(" + RegexPatterns.LEVEL_REGEX + ")";
   }
 }

@@ -12,8 +12,6 @@
  */
 package ch.qos.logback.decoder.regex;
 
-import java.io.InputStream;
-
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.pattern.DynamicConverter;
 import ch.qos.logback.core.util.DatePatternToRegexUtil;
@@ -21,7 +19,7 @@ import ch.qos.logback.core.util.DatePatternToRegexUtil;
 /**
  * Converts a date pattern into a regular expression
  */
-public class DateRegexConverter extends DynamicConverter<InputStream> {
+public class DateRegexConverter extends DynamicConverter<String> {
   private String datePattern = null;
   
   public void start() {
@@ -35,7 +33,7 @@ public class DateRegexConverter extends DynamicConverter<InputStream> {
     }
   }
 
-  public String convert(InputStream le) {
-    return new DatePatternToRegexUtil(datePattern).toRegex();
+  public String convert(String s) {
+    return "(" + new DatePatternToRegexUtil(datePattern).toRegex() + ")";
   }
 }

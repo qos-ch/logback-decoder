@@ -22,6 +22,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class LineOfCallerRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.LINE_OF_CALLER_REGEX;
+    return "(" + RegexPatterns.LINE_OF_CALLER_REGEX + ")";
   }
 }

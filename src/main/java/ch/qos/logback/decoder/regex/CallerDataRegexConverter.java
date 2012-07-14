@@ -22,7 +22,7 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class CallerDataRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.CALLER_STACKTRACE_REGEX;
+    return "(" + RegexPatterns.CALLER_STACKTRACE_REGEX + ")";
   }
 }
 

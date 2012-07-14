@@ -22,6 +22,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class ExtendedThrowableProxyRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.EXCEPTION_REGEX;
+    return "(" + RegexPatterns.EXCEPTION_REGEX + ")";
   }
 }

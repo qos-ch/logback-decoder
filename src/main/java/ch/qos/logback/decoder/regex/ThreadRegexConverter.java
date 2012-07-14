@@ -22,6 +22,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class ThreadRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return RegexPatterns.THREAD_NAME_REGEX;
+    return "(" + RegexPatterns.THREAD_NAME_REGEX + ")";
   }
 }

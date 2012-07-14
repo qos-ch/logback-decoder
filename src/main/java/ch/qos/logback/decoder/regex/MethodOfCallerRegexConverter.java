@@ -15,6 +15,7 @@ package ch.qos.logback.decoder.regex;
 import java.io.InputStream;
 
 import ch.qos.logback.core.pattern.DynamicConverter;
+import ch.qos.logback.decoder.PatternNames;
 
 /**
  * Converts a method-of-caller pattern into a regular expression
@@ -22,6 +23,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class MethodOfCallerRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return "(" + RegexPatterns.METHOD_OF_CALLER_REGEX + ")";
+    return "(?<" + PatternNames.METHOD_OF_CALLER + ">" + RegexPatterns.METHOD_OF_CALLER_REGEX + ")";
   }
 }

@@ -15,6 +15,7 @@ package ch.qos.logback.decoder.regex;
 import java.io.InputStream;
 
 import ch.qos.logback.core.pattern.DynamicConverter;
+import ch.qos.logback.decoder.PatternNames;
 
 
 /**
@@ -23,6 +24,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class LevelRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return "(" + RegexPatterns.LEVEL_REGEX + ")";
+    return "(?<" + PatternNames.LEVEL + ">" + RegexPatterns.LEVEL_REGEX + ")";
   }
 }

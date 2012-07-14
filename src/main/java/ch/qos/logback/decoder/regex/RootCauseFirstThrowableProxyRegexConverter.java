@@ -15,6 +15,7 @@ package ch.qos.logback.decoder.regex;
 import java.io.InputStream;
 
 import ch.qos.logback.core.pattern.DynamicConverter;
+import ch.qos.logback.decoder.PatternNames;
 
 /**
  * Converts a root-first-throwable-proxy pattern into a regular expression
@@ -22,6 +23,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class RootCauseFirstThrowableProxyRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return "(" + RegexPatterns.EXCEPTION_REGEX + ")";
+    return "(?<" + PatternNames.ROOT_EXCEPTION + ">" + RegexPatterns.EXCEPTION_REGEX + ")";
   }
 }

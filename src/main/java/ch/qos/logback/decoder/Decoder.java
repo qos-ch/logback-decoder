@@ -12,8 +12,9 @@
  */
 package ch.qos.logback.decoder;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +23,16 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.decoder.regex.PatternLayoutRegexUtil;
 
+import com.google.code.regexp.NamedMatcher;
+import com.google.code.regexp.NamedPattern;
+
 /**
  * A Decoder parses information from a log string and produces an
  * ILoggingEvent as a result.
  */
 public abstract class Decoder {
   private final Logger logger;
-  private Pattern regexPattern;
+  private NamedPattern regexPattern;
   private String layoutPattern;
   
   /**
@@ -45,7 +49,7 @@ public abstract class Decoder {
    */
   public void setLayoutPattern(String layoutPattern) {
     String regex = new PatternLayoutRegexUtil().toRegex(layoutPattern);
-    regexPattern = Pattern.compile(regex);
+    regexPattern = NamedPattern.compile(regex);
   }
   
   /**
@@ -67,18 +71,42 @@ public abstract class Decoder {
   public ILoggingEvent decode(String inputLine) {
 
     LoggingEvent event = null;
-    Matcher matcher = regexPattern.matcher(inputLine);
+    NamedMatcher matcher = regexPattern.matcher(inputLine);
     
     if (matcher.find()) {
       int numMatches = matcher.groupCount();
       if (numMatches > 0) {
+        
         event = new LoggingEvent();
-        for (int i = 0; i < numMatches; i++) {
-          logger.debug("{}) {}", i, matcher.group(i));
+        Map<String, String> groupMap = namedGroups(regexPattern, matcher);
+        for (Entry<String, String> entry : groupMap.entrySet()) {
+          logger.debug("{} = {}", entry.getKey(), entry.getValue());
         }
       }
     }
     return event;
   }
 
+  /**
+   * Gets a map of the regex group names and their values from a named
+   * pattern. This is a workaround for an IndexOutOfBoundsException
+   * from the named-regexp library when the number of the named 
+   * pattern's group names are less than the underlying group count.
+   * 
+   * @param p named pattern
+   * @param m named matcher
+   * @return the map of group names and their values
+   */
+  private Map<String, String> namedGroups(NamedPattern p, NamedMatcher m) {
+    Map<String, String> result = new LinkedHashMap<String, String>();
+
+    int groupCount = Math.min(m.groupCount(), p.groupNames().size());
+    for (int i = 1; i <= groupCount; i++) {
+        String groupName = p.groupNames().get(i-1);
+        String groupValue = m.group(i);
+        result.put(groupName, groupValue);
+    }
+
+    return result;
+  }
 }

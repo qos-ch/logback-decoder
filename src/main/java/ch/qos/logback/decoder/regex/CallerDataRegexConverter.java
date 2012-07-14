@@ -15,6 +15,7 @@ package ch.qos.logback.decoder.regex;
 import java.io.InputStream;
 
 import ch.qos.logback.core.pattern.DynamicConverter;
+import ch.qos.logback.decoder.PatternNames;
 
 /**
  * Converts a caller-data pattern into a regular expression
@@ -22,7 +23,7 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class CallerDataRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return "(" + RegexPatterns.CALLER_STACKTRACE_REGEX + ")";
+    return "(?<" + PatternNames.CALLER_STACKTRACE + ">" + RegexPatterns.CALLER_STACKTRACE_REGEX + ")";
   }
 }
 

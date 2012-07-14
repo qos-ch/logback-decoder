@@ -12,6 +12,8 @@
  */
 package ch.qos.logback.decoder;
 
+import java.util.Properties;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -34,10 +36,13 @@ public class MainArgs {
   private final Logger logger;
   private String layoutPattern;
   private String inputFile;
+  private boolean verbose;
+  private Properties props;
   private Options options;
   
   public MainArgs(String[] args) {
     logger = LoggerFactory.getLogger(MainArgs.class);
+    props = new Properties();
     options = createOptions();
     parseArgs(args);
   }
@@ -56,6 +61,20 @@ public class MainArgs {
    * @return the layout pattern
    */
   public String getLayoutPattern() { return layoutPattern; }
+  
+  /**
+   * Gets the verbose flag
+   * 
+   * @return the verbose flag
+   */
+  public boolean isVerbose() { return verbose; }
+  
+  /**
+   * Gets the defined properties
+   * 
+   * @return the properties
+   */
+  public Properties getProperties() { return props; }
   
   /**
    * Prints the usage string
@@ -147,6 +166,11 @@ public class MainArgs {
       if (line.hasOption("input-file")) {
         inputFile = line.getOptionValue("input-file");
       }
+      
+      if (line.hasOption('D')) {
+        props = line.getOptionProperties("D");
+      }
+      
     } catch (ParseException exp) {
       logger.error("Failed to parse command-line arguments: {}", exp);
       System.err.println("Error: " + exp.getMessage());

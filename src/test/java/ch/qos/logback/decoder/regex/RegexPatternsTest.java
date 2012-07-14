@@ -14,13 +14,14 @@ package ch.qos.logback.decoder.regex;
 
 import static org.junit.Assert.*;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.google.code.regexp.NamedMatcher;
+import com.google.code.regexp.NamedPattern;
+
 import ch.qos.logback.classic.spi.CallerData;
+import ch.qos.logback.decoder.PatternNames;
 
 /**
  * Validates the regular expressions in {@link RegexPatterns}
@@ -128,12 +129,13 @@ public class RegexPatternsTest {
   @Test
   public void testDateRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.Common.DATE_ISO8601_REGEX;
-    Pattern pattern = Pattern.compile(String.format("(%1$s) <.*>: .*\\n", REGEX));
+    final String GROUP_NAME = PatternNames.DATE;
+    NamedPattern pattern = NamedPattern.compile(String.format("(?<%1$s>%2$s) <.*>: .*\\n", GROUP_NAME, REGEX));
     
-    Matcher m = pattern.matcher("2006-10-20 14:06:49,812 <FooBar.java:24>: hello world!\n");
+    NamedMatcher m = pattern.matcher("2006-10-20 14:06:49,812 <FooBar.java:24>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("2006-10-20 14:06:49,812", m.group(1).toString());
+    assertEquals("2006-10-20 14:06:49,812", m.group(GROUP_NAME));
     
     m = pattern.matcher(" <FooBar.java:24>: hello world!\n");
     assertFalse(m.find());
@@ -156,22 +158,23 @@ public class RegexPatternsTest {
   @Test
   public void testLineOfCallerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.LINE_OF_CALLER_REGEX;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} .*\\.java:(%1$s) <.*>: .*\\n", REGEX));
+    final String GROUP_NAME = PatternNames.LINE_OF_CALLER;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} .*\\.java:(?<%1$s>%2$s) <.*>: .*\\n", GROUP_NAME, REGEX));
     
-    Matcher m = pattern.matcher("06/20/2012 FooBar.java:24 <TRACE>: hello world!\n");
+    NamedMatcher m = pattern.matcher("06/20/2012 FooBar.java:24 <TRACE>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("24", m.group(1).toString());
+    assertEquals("24", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 FooBar.java:1234567890 <TRACE>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("1234567890", m.group(1).toString());
+    assertEquals("1234567890", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 FooBar.java:? <TRACE>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("?", m.group(1).toString());
+    assertEquals("?", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 FooBar.java:123? <TRACE>: hello world!\n");
     assertFalse(m.find());
@@ -205,12 +208,13 @@ public class RegexPatternsTest {
   @Test
   public void testFileOfCallerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.FILE_OF_CALLER_REGEX;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} (%1$s) <.*>: .*\\n", REGEX));
+    final String GROUP_NAME = PatternNames.FILE_OF_CALLER;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} (?<%1$s>%2$s) <.*>: .*\\n", GROUP_NAME, REGEX));
     
-    Matcher m = pattern.matcher("06/20/2012 FooBar.java <TRACE>: hello world!\n");
+    NamedMatcher m = pattern.matcher("06/20/2012 FooBar.java <TRACE>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("FooBar.java", m.group(1).toString());
+    assertEquals("FooBar.java", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 .java <TRACE>: hello world!\n");
     assertFalse(m.find());
@@ -244,17 +248,18 @@ public class RegexPatternsTest {
   @Test
   public void testRelativeTimeRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.RELATIVE_TIME_REGEX;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} (%1$s) <.*>: .*\\n", REGEX));
+    final String GROUP_NAME = PatternNames.RELATIVE_TIME;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} (?<%1$s>%2$s) <.*>: .*\\n", GROUP_NAME, REGEX));
     
-    Matcher m = pattern.matcher("06/20/2012 00001234 <TRACE>: hello world!\n");
+    NamedMatcher m = pattern.matcher("06/20/2012 00001234 <TRACE>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("00001234", m.group(1).toString());
+    assertEquals("00001234", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 1234567890 <TRACE>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("1234567890", m.group(1).toString());
+    assertEquals("1234567890", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 123FooBar456 <TRACE>: hello world!\n");
     assertFalse(m.find());
@@ -282,42 +287,43 @@ public class RegexPatternsTest {
   @Test
   public void testLevelRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.LEVEL_REGEX;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(%1$s)>: .*\\n", REGEX));
+    final String GROUP_NAME = PatternNames.LEVEL;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(?<%1$s>%2$s)>: .*\\n", GROUP_NAME, REGEX));
     
-    Matcher m = pattern.matcher("06/20/2012 <OFF>: hello world!\n");
+    NamedMatcher m = pattern.matcher("06/20/2012 <OFF>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("OFF", m.group(1).toString());
+    assertEquals("OFF", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <WARN>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("WARN", m.group(1).toString());
+    assertEquals("WARN", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <ERROR>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("ERROR", m.group(1).toString());
+    assertEquals("ERROR", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <INFO>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("INFO", m.group(1).toString());
+    assertEquals("INFO", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <DEBUG>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("DEBUG", m.group(1).toString());
+    assertEquals("DEBUG", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <TRACE>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("TRACE", m.group(1).toString());
+    assertEquals("TRACE", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <ALL>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("ALL", m.group(1).toString());
+    assertEquals("ALL", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <DebuG>: hello world!\n");
     assertFalse(m.find());
@@ -343,17 +349,18 @@ public class RegexPatternsTest {
   @Test
   public void testThreadRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.THREAD_NAME_REGEX;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*> \\[(%1$s)\\]: .*\\n", REGEX));
+    final String GROUP_NAME = PatternNames.THREAD_NAME;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*> \\[(?<%1$s>%2$s)\\]: .*\\n", GROUP_NAME, REGEX));
     
-    Matcher m = pattern.matcher("06/20/2012 <DEBUG> [MyThreadName]: hello world!\n");
+    NamedMatcher m = pattern.matcher("06/20/2012 <DEBUG> [MyThreadName]: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("MyThreadName", m.group(1).toString());
+    assertEquals("MyThreadName", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <DEBUG> [any string is okay]: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("any string is okay", m.group(1).toString());
+    assertEquals("any string is okay", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <DEBUG> []: hello world!\n");
     assertFalse(m.find());
@@ -373,17 +380,18 @@ public class RegexPatternsTest {
   @Test
   public void testLoggerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.LOGGER_NAME_REGEX;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*> \\[(%1$s)\\]: .*\\n", REGEX));
+    final String GROUP_NAME = PatternNames.LOGGER_NAME;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*> \\[(?<%1$s>%2$s)\\]: .*\\n", GROUP_NAME, REGEX));
     
-    Matcher m = pattern.matcher("06/20/2012 <DEBUG> [MyLoggerName]: hello world!\n");
+    NamedMatcher m = pattern.matcher("06/20/2012 <DEBUG> [MyLoggerName]: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("MyLoggerName", m.group(1).toString());
+    assertEquals("MyLoggerName", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <DEBUG> [any string is okay]: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("any string is okay", m.group(1).toString());
+    assertEquals("any string is okay", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <DEBUG> []: hello world!\n");
     assertFalse(m.find());
@@ -401,18 +409,18 @@ public class RegexPatternsTest {
   @Test
   public void testMessageRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.MESSAGE_REGEX;
+    final String GROUP_NAME = PatternNames.MESSAGE;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*>: (?<%1$s>%2$s) !!!\\n", GROUP_NAME, REGEX));
     
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*>: (%1$s) !!!\\n", REGEX));
-    
-    Matcher m = pattern.matcher("06/20/2012 <DEBUG>: "+ MSG_WITH_STACKTRACE + " !!!\n");
+    NamedMatcher m = pattern.matcher("06/20/2012 <DEBUG>: "+ MSG_WITH_STACKTRACE + " !!!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals(MSG_WITH_STACKTRACE, m.group(1).toString());
+    assertEquals(MSG_WITH_STACKTRACE, m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <DEBUG>: "+ SAMPLEMSG + " !!!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals(SAMPLEMSG, m.group(1).toString());
+    assertEquals(SAMPLEMSG, m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <DEBUG>: !!!\n");
     assertFalse(m.find());
@@ -433,17 +441,18 @@ public class RegexPatternsTest {
   @Test
   public void testClassOfCallerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.CLASS_OF_CALLER_REGEX;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(%1$s)>: .*", REGEX));
+    final String GROUP_NAME = PatternNames.CLASS_OF_CALLER;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(?<%1$s>%2$s)>: .*", GROUP_NAME, REGEX));
 
-    Matcher m = pattern.matcher("06/20/2012 <MyClassName>: My class name is a Java identifier\n");
+    NamedMatcher m = pattern.matcher("06/20/2012 <MyClassName>: My class name is a Java identifier\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("MyClassName", m.group(1).toString());
+    assertEquals("MyClassName", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <?>: I don't know my own class name\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("?", m.group(1).toString());
+    assertEquals("?", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <>: hello world!\n");
     assertFalse(m.find());
@@ -462,12 +471,13 @@ public class RegexPatternsTest {
   @Test
   public void testMethodOfCallerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.METHOD_OF_CALLER_REGEX;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(%1$s)>: .*", REGEX));
+    final String GROUP_NAME = PatternNames.METHOD_OF_CALLER;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(?<%1$s>%2$s)>: .*", GROUP_NAME, REGEX));
 
-    Matcher m = pattern.matcher("06/20/2012 <toString>: hello world!\n");
+    NamedMatcher m = pattern.matcher("06/20/2012 <toString>: hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("toString", m.group(1).toString());
+    assertEquals("toString", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012 <>: hello world!\n");
     assertFalse(m.find());
@@ -513,12 +523,13 @@ public class RegexPatternsTest {
      */
     
     final String REGEX = RegexPatterns.MDC_REGEX;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <INFO> (%1$s) : .*", REGEX));
+    final String GROUP_NAME = PatternNames.MDC;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <INFO> (?<%1$s>%2$s) : .*", GROUP_NAME, REGEX));
     
-    Matcher m = pattern.matcher("06/20/2012 <INFO> key=value : hello world!");
+    NamedMatcher m = pattern.matcher("06/20/2012 <INFO> key=value : hello world!");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("key=value", m.group(1).toString());
+    assertEquals("key=value", m.group(GROUP_NAME).toString());
     assertEquals("key", m.group(2).toString());
     assertEquals("value", m.group(3).toString());
     
@@ -526,7 +537,7 @@ public class RegexPatternsTest {
     for (int i = 0; i < 3; i++) {
       assertTrue(m.find());
       assertTrue(m.groupCount() > 0);
-      assertEquals("k" + i + "=v" + i, m.group(1).toString()); // k0=v0
+      assertEquals("k" + i + "=v" + i, m.group(GROUP_NAME).toString()); // k0=v0
       assertEquals("k" + i, m.group(2).toString()); // k0
       assertEquals("v" + i, m.group(3).toString()); // v0
     }
@@ -535,7 +546,7 @@ public class RegexPatternsTest {
     for (int i = 0; i < 3; i++) {
       assertTrue(m.find());
       assertTrue(m.groupCount() > 0);
-      assertEquals("k" + i + "=v" + i, m.group(1).toString()); // k0=v0
+      assertEquals("k" + i + "=v" + i, m.group(GROUP_NAME).toString()); // k0=v0
       assertEquals("k" + i, m.group(2).toString()); // k0
       assertEquals("v" + i, m.group(3).toString()); // v0
     }
@@ -574,28 +585,28 @@ public class RegexPatternsTest {
   @Test
   public void testThrowableProxyRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.EXCEPTION_REGEX;
-    
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: EXCEPTION - (%1$s)\\n", REGEX));
+    final String GROUP_NAME = PatternNames.EXCEPTION;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: EXCEPTION - (?<%1$s>%2$s)\\n", GROUP_NAME, REGEX));
 
-    Matcher m = pattern.matcher("06/20/2012: EXCEPTION - "+ STACKTRACE1 +"\n");
+    NamedMatcher m = pattern.matcher("06/20/2012: EXCEPTION - "+ STACKTRACE1 +"\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals(STACKTRACE1, m.group(1).toString());
+    assertEquals(STACKTRACE1, m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012: EXCEPTION - "+ STACKTRACE2 +"\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals(STACKTRACE2, m.group(1).toString());
+    assertEquals(STACKTRACE2, m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012: EXCEPTION - "+ STACKTRACE3 +"\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals(STACKTRACE3, m.group(1).toString());
+    assertEquals(STACKTRACE3, m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012: EXCEPTION - "+ STACKTRACE4 +"\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals(STACKTRACE4, m.group(1).toString());
+    assertEquals(STACKTRACE4, m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012: EXCEPTION - java.lang.NullPointerException: Houston we have a problem\n");
     assertFalse(m.find());
@@ -617,22 +628,23 @@ public class RegexPatternsTest {
   @Test
   public void testMarkerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.MARKER_REGEX;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: <(%1$s)> .*\\n", REGEX));
+    final String GROUP_NAME = PatternNames.MARKER;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: <(?<%1$s>%2$s)> .*\\n", GROUP_NAME, REGEX));
 
-    Matcher m = pattern.matcher("06/20/2012: <markerName> hello world!\n");
+    NamedMatcher m = pattern.matcher("06/20/2012: <markerName> hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("markerName", m.group(1).toString());
+    assertEquals("markerName", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012: <parent1marker [ child ]> hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("parent1marker [ child ]", m.group(1).toString());
+    assertEquals("parent1marker [ child ]", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012: <parent2marker [ child1, child2 ]> hello world!\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals("parent2marker [ child1, child2 ]", m.group(1).toString());
+    assertEquals("parent2marker [ child1, child2 ]", m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012: <> hello world!\n");
     assertFalse(m.find());
@@ -652,22 +664,23 @@ public class RegexPatternsTest {
   @Test
   public void testCallerDataRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.CALLER_STACKTRACE_REGEX;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: <.*> .*\\n(%1$s)\\n", REGEX));
+    final String GROUP_NAME = PatternNames.CALLER_STACKTRACE;
+    NamedPattern pattern = NamedPattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: <.*> .*\\n(?<%1$s>%2$s)\\n", GROUP_NAME, REGEX));
 
-    Matcher m = pattern.matcher("06/20/2012: <TRACE> hello world!\n"+ CALLER_STACKTRACE1 +"\n");
+    NamedMatcher m = pattern.matcher("06/20/2012: <TRACE> hello world!\n"+ CALLER_STACKTRACE1 +"\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals(CALLER_STACKTRACE1, m.group(1).toString());
+    assertEquals(CALLER_STACKTRACE1, m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012: <TRACE> hello world!\n"+ CALLER_STACKTRACE2 +"\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals(CALLER_STACKTRACE2, m.group(1).toString());
+    assertEquals(CALLER_STACKTRACE2, m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012: <TRACE> hello world!\n"+ CALLER_STACKTRACE3 +"\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals(CALLER_STACKTRACE3, m.group(1).toString());
+    assertEquals(CALLER_STACKTRACE3, m.group(GROUP_NAME).toString());
     
     m = pattern.matcher("06/20/2012: <TRACE> hello world!\njava.lang.NullPointerException: Houston we have a problem\n");
     assertFalse(m.find());

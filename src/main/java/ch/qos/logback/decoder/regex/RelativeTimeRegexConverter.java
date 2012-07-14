@@ -15,6 +15,7 @@ package ch.qos.logback.decoder.regex;
 import java.io.InputStream;
 
 import ch.qos.logback.core.pattern.DynamicConverter;
+import ch.qos.logback.decoder.PatternNames;
 
 /**
  * Converts a relative-time pattern into a regular expression
@@ -22,6 +23,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class RelativeTimeRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return "(" + RegexPatterns.RELATIVE_TIME_REGEX + ")";
+    return "(?<" + PatternNames.RELATIVE_TIME + ">" + RegexPatterns.RELATIVE_TIME_REGEX + ")";
   }
 }

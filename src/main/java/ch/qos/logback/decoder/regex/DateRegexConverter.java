@@ -15,6 +15,7 @@ package ch.qos.logback.decoder.regex;
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.pattern.DynamicConverter;
 import ch.qos.logback.core.util.DatePatternToRegexUtil;
+import ch.qos.logback.decoder.PatternNames;
 
 /**
  * Converts a date pattern into a regular expression
@@ -34,6 +35,6 @@ public class DateRegexConverter extends DynamicConverter<String> {
   }
 
   public String convert(String s) {
-    return "(" + new DatePatternToRegexUtil(datePattern).toRegex() + ")";
+    return "(?<" + PatternNames.DATE + ">" + new DatePatternToRegexUtil(datePattern).toRegex() + ")";
   }
 }

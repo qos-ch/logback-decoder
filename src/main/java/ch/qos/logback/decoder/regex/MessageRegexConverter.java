@@ -15,6 +15,7 @@ package ch.qos.logback.decoder.regex;
 import java.io.InputStream;
 
 import ch.qos.logback.core.pattern.DynamicConverter;
+import ch.qos.logback.decoder.PatternNames;
 
 /**
  * Converts a message pattern into a regular expression
@@ -22,6 +23,6 @@ import ch.qos.logback.core.pattern.DynamicConverter;
 public class MessageRegexConverter extends DynamicConverter<InputStream> {
   
   public String convert(InputStream le) {
-    return "(" + RegexPatterns.Common.ANYTHING_MULTILINE_REGEX + ")";
+    return "(?<" + PatternNames.MESSAGE + ">" + RegexPatterns.Common.ANYTHING_MULTILINE_REGEX + ")";
   }
 }

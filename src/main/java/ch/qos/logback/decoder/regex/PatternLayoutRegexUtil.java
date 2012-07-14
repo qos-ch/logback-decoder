@@ -70,7 +70,7 @@ public class PatternLayoutRegexUtil {
    * special characters, escaped with a backslash
    */
   private String escapeRegexChars(String input) {
-    Pattern regex = Pattern.compile("([\\[\\]?.+*$()])");
+    Pattern regex = Pattern.compile("([\\[\\]?.+*$(){}])");
     Matcher matcher = regex.matcher(input);
     StringBuffer s = new StringBuffer(input);
     int numNewChars = 0;

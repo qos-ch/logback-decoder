@@ -78,9 +78,9 @@
 	<dependency>
 	  <groupId>com.google.code.regexp</groupId>
 	  <artifactId>named-regexp</artifactId>
-	  <version>0.1</version>
+	  <version>0.4</version>
 	  <scope>system</scope>
-	  <systemPath>${project.basedir}/lib/named-regexp-0.1.jar</systemPath>
+	  <systemPath>${project.basedir}/lib/named-regexp-0.4.jar</systemPath>
 	</dependency>
 
     </dependencies>

@@ -12,7 +12,8 @@
  */
 package ch.qos.logback.decoder;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -34,11 +35,12 @@ public abstract class Decoder {
   private final Logger logger;
   private NamedPattern regexPattern;
   private String layoutPattern;
+  private List<LayoutPatternInfo> patternInfo;
   
   /**
    * Constructs a Decoder
    */
-  public Decoder() {
+  protected Decoder() {
     logger = LoggerFactory.getLogger(Decoder.class);
   }
   
@@ -50,6 +52,7 @@ public abstract class Decoder {
   public void setLayoutPattern(String layoutPattern) {
     String regex = new PatternLayoutRegexUtil().toRegex(layoutPattern);
     regexPattern = NamedPattern.compile(regex);
+    patternInfo = LayoutPatternParser.parse(layoutPattern);
   }
   
   /**
@@ -75,34 +78,56 @@ public abstract class Decoder {
     
     if (matcher.find() && matcher.groupCount() > 0) {
       event = new LoggingEvent();
-      Map<String, String> groupMap = namedGroups(regexPattern, matcher);
+      
+      int patternIndex = 0;
+      Map<String, String> groupMap = matcher.namedGroups();
       for (Entry<String, String> entry : groupMap.entrySet()) {
-        logger.debug("{} = {}", entry.getKey(), entry.getValue());
+        String pattName = entry.getKey();
+        String field = entry.getValue();
+        
+        logger.debug("{} = {}", pattName, field);
+        
+        FieldCapturer<ILoggingEvent> parser = DECODER_MAP.get(pattName);
+        if (parser == null) {
+          logger.warn("No decoder for [{}, {}]", pattName, field);
+        } else {
+          parser.captureField(event, field, getConversionModifier(patternIndex, pattName));
+        }
+        
+        patternIndex++;
       }
     }
     return event;
   }
 
   /**
-   * Gets a map of the regex group names and their values from a named
-   * pattern. This is a workaround for an IndexOutOfBoundsException
-   * from the named-regexp library when the number of the named 
-   * pattern's group names are less than the underlying group count.
+   * Gets the conversion modifier for a pattern
    * 
-   * @param p named pattern
-   * @param m named matcher
-   * @return the map of group names and their values
+   * @param patternIndex the index
+   * @param fieldName the name of the pattern (it better match)
+   * @return the conversion modifier or <code>null</code> if not found
    */
-  private Map<String, String> namedGroups(NamedPattern p, NamedMatcher m) {
-    Map<String, String> result = new LinkedHashMap<String, String>();
-
-    int groupCount = Math.min(m.groupCount(), p.groupNames().size());
-    for (int i = 1; i <= groupCount; i++) {
-        String groupName = p.groupNames().get(i-1);
-        String groupValue = m.group(i);
-        result.put(groupName, groupValue);
+  private String getConversionModifier(int patternIndex, String fieldName) {
+    String convPattern = null;
+    LayoutPatternInfo inf = patternInfo.get(patternIndex);
+    if (inf != null) {
+      
+      // get the value only if the field name at this index
+      // matches the given name
+      String infName = PatternNames.getFullName(inf.getName());
+      if (infName != null && !infName.equals(fieldName)) {
+        logger.debug("BUG!! Saw a field name that did not match the pattern info's name! (index={} expected={} actual={})",
+            new Object[] { patternIndex, fieldName, infName });
+      } else {
+        convPattern = inf.getConversionModifier();
+      }
     }
-
-    return result;
+    return convPattern;
   }
+  
+  @SuppressWarnings("serial")
+  private static final Map<String, FieldCapturer<ILoggingEvent>> DECODER_MAP =
+    new HashMap<String, FieldCapturer<ILoggingEvent>>() {{
+      put(PatternNames.DATE, new DateParser());
+    }};
 }

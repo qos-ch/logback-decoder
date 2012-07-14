@@ -13,39 +13,20 @@
 package ch.qos.logback.decoder;
 
 /**
- * A FieldCapturer is responsible for producing the regular expression matching a
- * given field of an event of type E. Given an appropriate string value, a
- * FieldCapturer will set the field of E when its {@link #captureField(Object, String)}
- * is called.
+ * Given an appropriate string value, a FieldCapturer will set the 
+ * field of E when its {@link #captureField(Object, String)} is called.
  *
  * @param <E> some event type
- *
  */
 public interface FieldCapturer<E> {
-  
-  /**
-   * Gets the regular expression pattern used to parse a field from an event
-   * 
-   * @return the pattern as a string
-   */
-  public String getRegexPattern();
-
-
-  /**
-   * Some FieldCapturer instances are just place holders. If this method returns
-   * true, {@link #captureField(Object, String)} method should not be called. More
-   * importantly, the text matching the regex need not be stored/captured.
-   *
-   * @return true if this instance is a placeholder, false otherwise.
-   */
-  boolean isPlaceHolder();
 
   /**
    * Given fieldAsStr, sets the appropriate field of the event.
    *
    * @param event the event whose field should be captured
-   * @param fieldAsStr
+   * @param fieldAsStr the field as a string
+   * @param convPattern the field conversion pattern from the layout pattern
    */
-  abstract void captureField(E event, String fieldAsStr);
+  void captureField(E event, String fieldAsStr, String convPattern);
 
 }

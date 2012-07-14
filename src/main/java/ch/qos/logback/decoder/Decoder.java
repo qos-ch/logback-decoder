@@ -73,15 +73,11 @@ public abstract class Decoder {
     LoggingEvent event = null;
     NamedMatcher matcher = regexPattern.matcher(inputLine);
     
-    if (matcher.find()) {
-      int numMatches = matcher.groupCount();
-      if (numMatches > 0) {
-        
-        event = new LoggingEvent();
-        Map<String, String> groupMap = namedGroups(regexPattern, matcher);
-        for (Entry<String, String> entry : groupMap.entrySet()) {
-          logger.debug("{} = {}", entry.getKey(), entry.getValue());
-        }
+    if (matcher.find() && matcher.groupCount() > 0) {
+      event = new LoggingEvent();
+      Map<String, String> groupMap = namedGroups(regexPattern, matcher);
+      for (Entry<String, String> entry : groupMap.entrySet()) {
+        logger.debug("{} = {}", entry.getKey(), entry.getValue());
       }
     }
     return event;

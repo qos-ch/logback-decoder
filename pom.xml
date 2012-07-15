@@ -32,7 +32,8 @@
         <lucene.version>3.5.0</lucene.version>
         <jackson.version>2.0.0</jackson.version>
         <commons.cli.version>1.2</commons.cli.version>
-        
+        <named.regexp.version>0.1.5</named.regexp.version>
+ 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -78,9 +79,9 @@
 	<dependency>
 	  <groupId>com.google.code.regexp</groupId>
 	  <artifactId>named-regexp</artifactId>
-	  <version>0.4</version>
+	  <version>${named.regexp.version}</version>
 	  <scope>system</scope>
-	  <systemPath>${project.basedir}/lib/named-regexp-0.4.jar</systemPath>
+	  <systemPath>${project.basedir}/lib/named-regexp-${named.regexp.version}.jar</systemPath>
 	</dependency>
 
     </dependencies>

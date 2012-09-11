@@ -126,7 +126,7 @@ public class FileDecoder extends Decoder {
    * the first line so that it can be processed as a logging event.
    * 
    * @param reader reader of the log file
-   * @return the layout pattern if found; otherwise <code>null</code>
+   * @return the layout pattern if found; otherwise {@code null}
    * @throws IOException
    */
   static private String getLayout(BufferedReader reader) throws IOException {

@@ -22,7 +22,7 @@ public class UnknownLayoutPatternException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Constructs a <code>UnknownLayoutPatternException</code> with
+   * Constructs a {@code UnknownLayoutPatternException} with
    * no detail message
    */
   public UnknownLayoutPatternException() {
@@ -30,7 +30,7 @@ public class UnknownLayoutPatternException extends RuntimeException {
   }
   
   /**
-   * Constructs a <code>UnknownLayoutPatternException</code> with
+   * Constructs a {@code UnknownLayoutPatternException} with
    * the specified detail message
    * 
    * @param message the detail message

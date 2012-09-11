@@ -22,23 +22,25 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.pattern.parser2.PatternInfo;
+import ch.qos.logback.core.pattern.parser2.PatternParser;
 import ch.qos.logback.decoder.regex.PatternLayoutRegexUtil;
 
 import com.google.code.regexp.NamedMatcher;
 import com.google.code.regexp.NamedPattern;
 
 /**
- * A Decoder parses information from a log string and produces an
- * ILoggingEvent as a result.
+ * A {@code Decoder} parses information from a log string and produces an
+ * {@link ILoggingEvent} as a result.
  */
 public abstract class Decoder {
   private final Logger logger;
   private NamedPattern regexPattern;
   private String layoutPattern;
-  private List<LayoutPatternInfo> patternInfo;
+  private List<PatternInfo> patternInfo;
   
   /**
-   * Constructs a Decoder
+   * Constructs a {@code Decoder}
    */
   protected Decoder() {
     logger = LoggerFactory.getLogger(Decoder.class);
@@ -50,9 +52,15 @@ public abstract class Decoder {
    * @param layoutPattern the desired layout pattern
    */
   public void setLayoutPattern(String layoutPattern) {
-    String regex = new PatternLayoutRegexUtil().toRegex(layoutPattern);
-    regexPattern = NamedPattern.compile(regex);
-    patternInfo = LayoutPatternParser.parse(layoutPattern);
+    if (layoutPattern != null) {
+      String regex = new PatternLayoutRegexUtil().toRegex(layoutPattern);
+      regexPattern = NamedPattern.compile(regex);
+      patternInfo = PatternParser.parse(layoutPattern);
+    } else {
+      regexPattern = null;
+      patternInfo = null;
+    }
+    this.layoutPattern = layoutPattern;
   }
   
   /**
@@ -65,10 +73,10 @@ public abstract class Decoder {
   }
   
   /**
-   * Decodes a log line as an ILoggingEvent
+   * Decodes a log line as an {@link ILoggingEvent}
    * 
    * @param inputLine the log line to decode
-   * @return the decoded ILoggingEvent or <code>null</code> 
+   * @return the decoded {@link ILoggingEvent }or {@code null} 
    * if line cannot be decoded
    */
   public ILoggingEvent decode(String inputLine) {
@@ -87,11 +95,11 @@ public abstract class Decoder {
         
         logger.debug("{} = {}", pattName, field);
         
-        FieldCapturer<ILoggingEvent> parser = DECODER_MAP.get(pattName);
+        FieldCapturer<LoggingEvent> parser = DECODER_MAP.get(pattName);
         if (parser == null) {
           logger.warn("No decoder for [{}, {}]", pattName, field);
         } else {
-          parser.captureField(event, field, getConversionModifier(patternIndex, pattName));
+          parser.captureField(event, field, getPatternInfo(patternIndex, pattName));
         }
         
         patternIndex++;
@@ -101,33 +109,36 @@ public abstract class Decoder {
   }
 
   /**
-   * Gets the conversion modifier for a pattern
+   * Gets the pattern info for a sub-pattern
    * 
-   * @param patternIndex the index
-   * @param fieldName the name of the pattern (it better match)
-   * @return the conversion modifier or <code>null</code> if not found
+   * @param patternIndex the index of the sub-pattern
+   * @param fieldName the name of the sub-pattern
+   * @return the pattern info or {@code null} if not found
    */
-  private String getConversionModifier(int patternIndex, String fieldName) {
-    String convPattern = null;
-    LayoutPatternInfo inf = patternInfo.get(patternIndex);
+  private PatternInfo getPatternInfo(int patternIndex, String fieldName) {
+    PatternInfo inf = patternInfo.get(patternIndex);
     if (inf != null) {
       
       // get the value only if the field name at this index
       // matches the given name
       String infName = PatternNames.getFullName(inf.getName());
       if (infName != null && !infName.equals(fieldName)) {
-        logger.debug("BUG!! Saw a field name that did not match the pattern info's name! (index={} expected={} actual={})",
-            new Object[] { patternIndex, fieldName, infName });
-      } else {
-        convPattern = inf.getConversionModifier();
+        logger.debug(
+              "BUG!! Saw a field name that did not match the pattern info's " + 
+              "name! (index={} expected={} actual={})",
+              new Object[] { patternIndex, fieldName, infName });
+        
+        inf = null;
       }
     }
-    return convPattern;
+    return inf;
   }
   
   @SuppressWarnings("serial")
-  private static final Map<String, FieldCapturer<ILoggingEvent>> DECODER_MAP =
-    new HashMap<String, FieldCapturer<ILoggingEvent>>() {{
+  private static final Map<String, FieldCapturer<LoggingEvent>> DECODER_MAP =
+    new HashMap<String, FieldCapturer<LoggingEvent>>() {{
       put(PatternNames.DATE, new DateParser());
+      put(PatternNames.LEVEL, new LevelParser());
+      put(PatternNames.MESSAGE, new MessageParser());
     }};
 }

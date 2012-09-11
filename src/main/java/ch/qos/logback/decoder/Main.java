@@ -32,6 +32,7 @@ public final class Main {
   static public void main(String[] args) {
     MainArgs mainArgs = new MainArgs(args);
     FileDecoder decoder = new FileDecoder();
+    decoder.setLayoutPattern(mainArgs.getLayoutPattern());
     decoder.decode(new File(mainArgs.getInputFile()));
     System.exit(0);
   }

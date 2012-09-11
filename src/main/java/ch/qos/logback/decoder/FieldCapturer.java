@@ -12,6 +12,8 @@
  */
 package ch.qos.logback.decoder;
 
+import ch.qos.logback.core.pattern.parser2.PatternInfo;
+
 /**
  * Given an appropriate string value, a FieldCapturer will set the 
  * field of E when its {@link #captureField(Object, String)} is called.
@@ -25,8 +27,10 @@ public interface FieldCapturer<E> {
    *
    * @param event the event whose field should be captured
    * @param fieldAsStr the field as a string
-   * @param convPattern the field conversion pattern from the layout pattern
+   * @param info sub-pattern information from original layout 
+   * pattern, including format and conversion modifiers, that 
+   * can be used to parse {@code fieldAsStr}
    */
-  void captureField(E event, String fieldAsStr, String convPattern);
+  void captureField(E event, String fieldAsStr, PatternInfo info);
 
 }

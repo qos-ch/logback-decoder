@@ -40,6 +40,11 @@ public class MainArgs {
   private Properties props;
   private Options options;
   
+  /**
+   * Constructs a {@code MainArgs} with the given arguments
+   * 
+   * @param args command-line arguments
+   */
   public MainArgs(String[] args) {
     logger = LoggerFactory.getLogger(MainArgs.class);
     props = new Properties();

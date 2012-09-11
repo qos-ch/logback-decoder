@@ -124,6 +124,51 @@ public class PatternNames {
     put(CONTEXT_NAME_1, CONTEXT_NAME);
   }};
   
+  private static final List<String> PATTERNLIST = Arrays.asList(
+                                                    IDENTITY,
+                                                    REPLACE,
+                                                    DATE,
+                                                    DATE_1,
+                                                    RELATIVE_TIME,
+                                                    RELATIVE_TIME_1,
+                                                    LEVEL,
+                                                    LEVEL_1,
+                                                    LEVEL_2,
+                                                    THREAD_NAME,
+                                                    THREAD_NAME_1,
+                                                    LOGGER_NAME,
+                                                    LOGGER_NAME_1,
+                                                    LOGGER_NAME_2,
+                                                    MESSAGE,
+                                                    MESSAGE_1,
+                                                    MESSAGE_2,
+                                                    CLASS_OF_CALLER_1,
+                                                    CLASS_OF_CALLER,
+                                                    METHOD_OF_CALLER,
+                                                    METHOD_OF_CALLER_1,
+                                                    LINE_OF_CALLER,
+                                                    LINE_OF_CALLER_1,
+                                                    FILE_OF_CALLER,
+                                                    FILE_OF_CALLER_1,
+                                                    MDC,
+                                                    MDC_1,
+                                                    EXCEPTION,
+                                                    EXCEPTION_1,
+                                                    EXT_EXCEPTION,
+                                                    EXT_EXCEPTION_1,
+                                                    EXT_EXCEPTION_2,
+                                                    ROOT_EXCEPTION,
+                                                    ROOT_EXCEPTION_1,
+                                                    NOPEX,
+                                                    NOPEX_1,
+                                                    CONTEXT_NAME,
+                                                    CONTEXT_NAME_1,
+                                                    CALLER_STACKTRACE,
+                                                    MARKER,
+                                                    PROPERTY,
+                                                    NEWLINE
+                                                    );
+  
   /**
    * Gets the full name of an abbreviated pattern name. If the
    * abbreviation cannot be converted, it is returned as is.
@@ -141,50 +186,7 @@ public class PatternNames {
    * 
    * @return the list of names
    */
-  public static List<String> asList() {
-    return Arrays.asList(
-        IDENTITY,
-        REPLACE,
-        DATE,
-        DATE_1,
-        RELATIVE_TIME,
-        RELATIVE_TIME_1,
-        LEVEL,
-        LEVEL_1,
-        LEVEL_2,
-        THREAD_NAME,
-        THREAD_NAME_1,
-        LOGGER_NAME,
-        LOGGER_NAME_1,
-        LOGGER_NAME_2,
-        MESSAGE,
-        MESSAGE_1,
-        MESSAGE_2,
-        CLASS_OF_CALLER_1,
-        CLASS_OF_CALLER,
-        METHOD_OF_CALLER,
-        METHOD_OF_CALLER_1,
-        LINE_OF_CALLER,
-        LINE_OF_CALLER_1,
-        FILE_OF_CALLER,
-        FILE_OF_CALLER_1,
-        MDC,
-        MDC_1,
-        EXCEPTION,
-        EXCEPTION_1,
-        EXT_EXCEPTION,
-        EXT_EXCEPTION_1,
-        EXT_EXCEPTION_2,
-        ROOT_EXCEPTION,
-        ROOT_EXCEPTION_1,
-        NOPEX,
-        NOPEX_1,
-        CONTEXT_NAME,
-        CONTEXT_NAME_1,
-        CALLER_STACKTRACE,
-        MARKER,
-        PROPERTY,
-        NEWLINE
-        );
+  public static final List<String> asList() {
+    return PATTERNLIST; 
   }
 }

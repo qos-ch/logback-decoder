@@ -63,9 +63,15 @@ public class PatternLayoutRegexUtilTest {
     }
     
     // TODO: How do we test different locales?
-    // TODO: Need to test various date patterns (%d{HH:mm:ss.SSS})
   }
 
+  @Test
+  public void testDatePatternToRegex2() {
+    final String REGEX = "(?<" + PatternNames.DATE + ">\\d{2}:\\d{2}:\\d{2})";
+    
+    assertEquals(REGEX, regexifier.toRegex("%d{HH:mm:ss}"));
+  }
+  
   @Test
   public void testLineOfCallerPatternToRegex() {
     final String REGEX = "(?<" + PatternNames.LINE_OF_CALLER + ">" + RegexPatterns.LINE_OF_CALLER_REGEX + ")";
@@ -210,4 +216,11 @@ public class PatternLayoutRegexUtilTest {
     
     assertEquals(REGEX, regexifier.toRegex("%d %F:%L %d"));
   }
+  
+  @Test
+  public void testLevelPatternToRegexWithRegexCharsInLiteral() {
+    final String REGEX = "\\[(?<" + PatternNames.LEVEL + ">" + RegexPatterns.LEVEL_REGEX + ")\\] \\.\\.\\.";
+    assertEquals(REGEX, regexifier.toRegex("[%le] ..."));
+  }
+  
 }

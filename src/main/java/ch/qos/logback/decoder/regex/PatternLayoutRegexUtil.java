@@ -14,13 +14,11 @@ package ch.qos.logback.decoder.regex;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import ch.qos.logback.core.ContextBase;
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.pattern.PatternLayoutBase;
-import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.pattern.parser2.PatternParser;
 
 /**
  * Utility to convert a layout pattern into a regular expression
@@ -48,50 +46,7 @@ public class PatternLayoutRegexUtil {
     converter = new PatternLayoutRegexHelper();
     converter.setContext(context);
   }
-
-  /** 
-   * This is an escape sequence of an unlikely string, used to 
-   * escape regex chars in the layout pattern. We can't use a 
-   * backslash since the pattern-layout converter complains 
-   * about it. This special escape sequence is converted to 
-   * a backslash after we pass it through the pattern-layout 
-   * converter. 
-   */
-  static private final String ESC_SEQ = "@&#@esc__";
-  static private int ESC_SEQ_LEN = ESC_SEQ.length();
-  
-  /**
-   * Escapes regex characters in a string. This is used to escape
-   * any regex special chars in a layout pattern, which could be
-   * unintentionally interpreted by the Java regex engine. 
-   * 
-   * @param input string to be escaped
-   * @return string containing regex characters
-   * special characters, escaped with a backslash
-   */
-  private String escapeRegexChars(String input) {
-    Pattern regex = Pattern.compile("([\\[\\]?.+*$(){}])");
-    Matcher matcher = regex.matcher(input);
-    StringBuffer s = new StringBuffer(input);
-    int numNewChars = 0;
-    while (matcher.find()) {
-      s.insert(matcher.start() + numNewChars, ESC_SEQ);
-      numNewChars += ESC_SEQ_LEN;
-    }
-    return s.toString();
-  }
-  
-  /**
-   * Replaces the escape sequence in a string from {@link #escapeRegexChars(String)}
-   * with backslashes.
-   * 
-   * @param input string containing {@link #ESC_SEQ}
-   * @return updated string without {@link #ESC_SEQ}
-   */
-  private String slashEscapeSequence(String input) {
-    return input.replace(ESC_SEQ, "\\");
-  }
-  
+    
   /**
    * Converts a layout pattern to a regular expression pattern
    * 
@@ -99,12 +54,13 @@ public class PatternLayoutRegexUtil {
    * @return the pattern with the log-layout patterns replaced with equivalent regexes 
    */
   public String toRegex(String layoutPattern) {
-    converter.setPattern(escapeRegexChars(layoutPattern));
+    converter.setPattern(PatternParser.escapeRegexCharsInPattern(layoutPattern));
     if (!converter.isStarted()) {
       converter.start();
-      StatusPrinter.printIfErrorsOccured(converter.getContext());
+      //StatusPrinter.printIfErrorsOccured(converter.getContext());
     }
-    return slashEscapeSequence(converter.doLayout(null));
+    String conversion = converter.doLayout(null); 
+    return PatternParser.switchEscapeSequenceToSlashes(conversion);
   }
 }
 

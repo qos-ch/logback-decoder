@@ -14,13 +14,19 @@ package ch.qos.logback.decoder;
 
 import static org.junit.Assert.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.CoreConstants;
 
 /**
  * Tests the {@link Decoder} class
@@ -28,7 +34,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
  * @author Anthony Trinh
  */
 public class DecoderTest {
-  private Decoder decoder;
+  private DecoderTestBase decoder;
   
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -40,6 +46,7 @@ public class DecoderTest {
 
   @Before
   public void setUp() throws Exception {
+    decoder = new DecoderTestBase();
   }
 
   @After
@@ -47,10 +54,67 @@ public class DecoderTest {
   }
 
   @Test
-  public void testParseLine() {
-    ILoggingEvent event;
+  public void testDecodeDateISO8601() throws ParseException {
+    decoder.setLayoutPattern("%d %msg%n");
+    final String DATE = "2012-07-13 10:15:40,224";
+    ILoggingEvent event = decoder.decode(DATE + " Hello world!\n");
+    assertNotNull(event);
     
-    
+    Date date = new SimpleDateFormat(CoreConstants.ISO8601_PATTERN).parse(DATE);
+    long timestamp = date.getTime();
+    assertTrue(timestamp > 0);
+    assertEquals(timestamp, event.getTimeStamp());
   }
 
+  @Test
+  public void testDecodeDateWithPattern1() throws ParseException {
+    final String format = "HH:mm:ssa";
+    decoder.setLayoutPattern("%d{" + format + "} %msg%n");
+    final String TIME_AM = "10:15:40AM";
+    ILoggingEvent event = decoder.decode(TIME_AM + " Hello world!\n");
+    assertNotNull(event);
+    
+    Date date = new SimpleDateFormat(format).parse(TIME_AM);
+    long timestamp = date.getTime();
+    assertTrue(timestamp > 0);
+    assertEquals(timestamp, event.getTimeStamp());
+  }
+
+  @Test
+  public void testDecodeDateWithPattern2() throws ParseException {
+    final String format = "HH:mm:ssa";
+    decoder.setLayoutPattern("%d{" + format + "} %msg%n");
+    final String TIME_AM = "03:55:00PM";
+    ILoggingEvent event = decoder.decode(TIME_AM + " Hello world!\n");
+    assertNotNull(event);
+    
+    Date date = new SimpleDateFormat(format).parse(TIME_AM);
+    long timestamp = date.getTime();
+    assertTrue(timestamp > 0);
+    assertEquals(timestamp, event.getTimeStamp());
+  }
+  
+  @Test
+  public void testDecodeLevel() throws ParseException {
+    decoder.setLayoutPattern("%level %msg%n");
+    final String LEVEL = "TRACE";
+    ILoggingEvent event = decoder.decode(LEVEL + " Hello world!\n");
+    assertNotNull(event);
+    
+    assertEquals(LEVEL, event.getLevel().toString());
+  }
+  
+  @Ignore("not yet implemented")
+  @Test
+  public void testDecodeLevelShortPattern() throws ParseException {
+    decoder.setLayoutPattern("%.-1level %msg%n");
+    final String LEVEL = "TRACE";
+    ILoggingEvent event = decoder.decode(LEVEL.charAt(0) + " Hello world!\n");
+    assertNotNull(event);
+    
+    assertEquals(LEVEL, event.getLevel().toString());
+  }
+  
+  private class DecoderTestBase extends Decoder {}
 }
+

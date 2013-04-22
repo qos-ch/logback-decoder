@@ -6,13 +6,13 @@ The documentation can be found in the Wiki here:
 Goal
 ====
 
-The goal of this project is to convert one or more lines found in a log file 
-(containing text)  into a series of objects of type ILoggingEvent. Thus, FileAppender 
-converts intances of ILoggingEvent  into one or more lines  in a log file, a decoder 
+The main goal of this project is to convert one or more lines found in a log file 
+(containing text) into a series of objects of type ILoggingEvent. Thus, FileAppender 
+converts intances of ILoggingEvent into one or more lines  in a log file, a decoder 
 performs the inverse operation.
 
-It is assummed that the first line of the log file contains the pattern that 
-was used to  format the output. See 
+It should be assumed that the first line of the log file contains the pattern 
+that was used to format the output. See 
 http://logback.qos.ch/manual/encoders.html#outputPatternAsHeader for further 
 details.
 

@@ -22,7 +22,7 @@ Run the following command to build:
     $ mvn install
 
 In case of problems
-===================
+=================== 
 
 In case of problems, please do not hesitate to post an e-mail message
 on the logback-user@qos.ch mailing list.  However, please do not

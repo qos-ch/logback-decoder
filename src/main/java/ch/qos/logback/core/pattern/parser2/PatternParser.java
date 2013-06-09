@@ -38,7 +38,7 @@ public class PatternParser {
   // group names
   private static final String FORMAT = "fmt";
   private static final String NAME = "name";
-  private static final String CONVRSN = "cnv";
+  private static final String OPTION = "opt";
   private static final String GROUP = "grp";
 
   // general regex pattern for layout patterns
@@ -82,8 +82,8 @@ public class PatternParser {
         "%" +                                                   // pattern starter (required) 
         "(?<" + FORMAT + ">[-.]{0,2}\\d+(?:\\.\\d+)?)?" +       // format modifier (optional)
         "(?<" + NAME + ">" + names + ")?" +                     // pattern name (optional)
-        "(?:\\((?<" + GROUP + ">.*)\\))?" +                     // grouping (optional)
-        "(?:\\{(?<" + CONVRSN + ">.*)\\})?";                    // conversion modifier (optional)
+        "(?:\\((?<" + GROUP + ">[^)]*?)\\))?" +                 // grouping (optional)
+        "(?:\\{(?<" + OPTION + ">[^}]*?)\\})?";                 // conversion option (optional)
 
     REGEX_PATTERN = NamedPattern.compile(REGEX);
   }
@@ -118,8 +118,8 @@ public class PatternParser {
       // the layout pattern (this is not to be confused with a 
       // regex capture group)
       String group = getTextUpToFirstCloser(m.group(GROUP), '(', ')', false);
-      String conv = getTextUpToFirstCloser(m.group(CONVRSN), '{', '}', true);
-      
+      String opt = getTextUpToFirstCloser(buf + m.group(OPTION), '{', '}', true);
+
       PatternInfo inf = new PatternInfo();
       
       inf.setOriginal(m.group(0))
@@ -127,7 +127,7 @@ public class PatternParser {
           .setEnd(m.end())
           .setGroup(group)
           .setName(m.group(NAME))
-          .setConversionModifier(conv)
+          .setOption(opt)
           .setFormatModifier(m.group(FORMAT));
 
       // recursively set children
@@ -178,7 +178,6 @@ public class PatternParser {
     int numOpeners = countOccurences(s, opener);
     int numClosers = countOccurences(s, closer);
     if (numOpeners != numClosers) {
-      
       // find first non-escaped closer
       int i = -1;
       while ((i = s.indexOf(closer, i+1)) >= 0) {

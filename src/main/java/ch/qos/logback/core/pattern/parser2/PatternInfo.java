@@ -18,149 +18,149 @@ import ch.qos.logback.decoder.PatternNames;
 
 /**
  * Contains the individual parts of a single layout pattern, including
- * format modifier, conversion modifier, and name.
- * 
+ * format modifier, conversion option, and name.
+ *
  * The individual parts are defined as (without the square brackets):
- * 
+ *
  * <blockquote>
- *    <pre>%[format][name]{[conversion]}</pre>
+ *    <pre>%[format][name]{[option]}</pre>
  * </blockquote>
- * 
+ *
  * The "name" field must be one of {@link PatternNames}.
  */
 public class PatternInfo {
   private String formatModifier;
-  private String conversionModifier;
+  private String option;
   private String name;
   private String contents;
   private String original;
   private int start;
   private int end;
   private List<PatternInfo> children;
-  
+
   /**
    * Gets the format modifier
-   * 
+   *
    * @return the format modifier
    */
   public String getFormatModifier() { return formatModifier; }
-  
+
   /**
    * Sets the format modifier
-   * 
+   *
    * @param s the desired value
    * @return this {@code LayoutPatternInfo}
    */
-  public PatternInfo setFormatModifier(String s) { 
-    formatModifier = s; 
-    return this; 
-  }
-  
-  /**
-   * Gets the conversion modifier
-   * 
-   * @return the conversion modifier
-   */
-  public String getConversionModifier() { return conversionModifier; }
-  
-  /**
-   * Sets the conversion modifier
-   * 
-   * @param s the desired value
-   * @return this {@code LayoutPatternInfo}
-   */
-  public PatternInfo setConversionModifier(String s) { 
-    conversionModifier = s;
+  public PatternInfo setFormatModifier(String s) {
+    formatModifier = s;
     return this;
   }
-  
+
+  /**
+   * Gets the conversion option
+   *
+   * @return the conversion option
+   */
+  public String getOption() { return option; }
+
+  /**
+   * Sets the conversion option
+   *
+   * @param s the desired value
+   * @return this {@code LayoutPatternInfo}
+   */
+  public PatternInfo setOption(String s) {
+    option = s;
+    return this;
+  }
+
   /**
    * Gets the name of this layout pattern
-   * 
+   *
    * @return the name
    */
   public String getName() { return name; }
-  
+
   /**
    * Sets the name of this layout pattern
-   * 
+   *
    * @param s the desired value
    * @return this {@code LayoutPatternInfo}
    */
-  public PatternInfo setName(String s) { 
+  public PatternInfo setName(String s) {
     name = s;
     return this;
   }
-  
+
   /**
-   * Gets the starting position of this sub-pattern within 
+   * Gets the starting position of this sub-pattern within
    * the full layout pattern
-   * 
+   *
    * @return the starting zero-based index
    */
   public int start() { return start; }
-  
+
   /**
    * Sets the starting position of this sub-pattern within
    * the full layout pattern
-   * 
+   *
    * @param index the desired value
    * @return this {@code LayoutPatternInfo}
    */
-  public PatternInfo setStart(int index) { 
-    start = index; 
+  public PatternInfo setStart(int index) {
+    start = index;
     return this;
   }
-  
+
   /**
-   * Gets the end position of this sub-pattern within the 
+   * Gets the end position of this sub-pattern within the
    * full layout pattern
-   * 
+   *
    * @return the end zero-based index
    */
   public int end() { return end; }
-  
+
   /**
    * Sets the end position of this sub-pattern within the
    * full layout pattern
-   * 
+   *
    * @param index the desired value
    */
-  public PatternInfo setEnd(int index) { 
+  public PatternInfo setEnd(int index) {
     end = index;
     return this;
   }
-  
+
   /**
    * Gets the contents (inner text of a grouping)
-   * 
+   *
    * @return the contents
    */
   public String contents() { return contents; }
-  
+
   /**
    * Sets the contents (inner text of a grouping)
-   * 
+   *
    * @param s the desired value
    * @return this {@code LayoutPatternInfo}
    */
-  public PatternInfo setGroup(String s) { 
+  public PatternInfo setGroup(String s) {
     contents = s;
     return this;
   }
-  
+
   /**
    * Gets the children (sub-patterns from inner text of a grouping)
    * of this sub-pattern
-   * 
-   * @return the children  
+   *
+   * @return the children
    */
   public List<PatternInfo> getChildren() { return children; }
-  
+
   /**
    * Sets the children (sub-patterns from inner text of a grouping)
    * of this sub-pattern
-   * 
+   *
    * @param children the desired value
    * @return this {@code LayoutPatternInfo}
    */
@@ -168,17 +168,17 @@ public class PatternInfo {
     this.children = children;
     return this;
   }
-  
+
   /**
    * Gets the original sub-pattern text
-   * 
+   *
    * @return the complete sub-pattern
    */
   public String getOriginal() { return original; }
-  
+
   /**
    * Sets the original sub-pattern text
-   * 
+   *
    * @param s the desired value
    * @return this {@code LayoutPatternInfo}
    */
@@ -186,38 +186,38 @@ public class PatternInfo {
     original = s;
     return this;
   }
-  
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     appendString(sb, 0);
     return sb.toString();
   }
-  
+
   /**
    * Appends a specified number of tabs to a string builder
-   * 
+   *
    * @param sb destination string builder
    * @param count number of tabs to append
    */
   private void appendTabs(StringBuilder sb, int count) {
     for (int i = 0; i < count; i++) sb.append("  ");
   }
-  
+
   /**
    * Appends a formatted string representation of
    * this {@code LayoutPatternInfo}
-   * 
+   *
    * @param sb destination string builder
    * @param level tab level
    */
   private void appendString(StringBuilder sb, int level) {
-    
+
     appendTabs(sb, level);
     sb.append("{\n");
     appendTabs(sb, level+1);
     sb.append("Indexes:      [").append(start).append(",").append(end).append("),\n");
-    
+
     if (original != null) {
       appendTabs(sb, level+1);
       sb.append("Original:     ").append(original).append(",\n");
@@ -234,18 +234,18 @@ public class PatternInfo {
       appendTabs(sb, level+1);
       sb.append("Format Mod:   ").append(formatModifier).append(",\n");
     }
-    if (conversionModifier != null) {
+    if (option != null) {
       appendTabs(sb, level+1);
-      sb.append("Conv Mod:     ").append(conversionModifier).append(",\n");
+      sb.append("Option:       ").append(option).append(",\n");
     }
     if (children != null && !children.isEmpty()) {
       appendTabs(sb, level+1);
       sb.append("Children: {\n");
-      
+
       for (PatternInfo c : children) {
         c.appendString(sb, level+2);
       }
-      
+
       appendTabs(sb, level+1);
       sb.append("}\n");
     }

@@ -37,7 +37,7 @@ public class DateParser implements FieldCapturer<LoggingEvent> {
     // default to ISO8601 is no conversion pattern given
     String convPattern = CoreConstants.ISO8601_PATTERN;
     if (info != null) {
-      convPattern = info.getConversionModifier();
+      convPattern = info.getOption();
       if (convPattern == null || convPattern.isEmpty() || convPattern.equals(CoreConstants.ISO8601_STR)) {
         convPattern = CoreConstants.ISO8601_PATTERN;
       }

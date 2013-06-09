@@ -30,12 +30,12 @@ import ch.qos.logback.core.CoreConstants;
 
 /**
  * Tests the {@link Decoder} class
- * 
+ *
  * @author Anthony Trinh
  */
 public class DecoderTest {
   private DecoderTestBase decoder;
-  
+
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
   }
@@ -59,7 +59,7 @@ public class DecoderTest {
     final String DATE = "2012-07-13 10:15:40,224";
     ILoggingEvent event = decoder.decode(DATE + " Hello world!\n");
     assertNotNull(event);
-    
+
     Date date = new SimpleDateFormat(CoreConstants.ISO8601_PATTERN).parse(DATE);
     long timestamp = date.getTime();
     assertTrue(timestamp > 0);
@@ -73,7 +73,7 @@ public class DecoderTest {
     final String TIME_AM = "10:15:40AM";
     ILoggingEvent event = decoder.decode(TIME_AM + " Hello world!\n");
     assertNotNull(event);
-    
+
     Date date = new SimpleDateFormat(format).parse(TIME_AM);
     long timestamp = date.getTime();
     assertTrue(timestamp > 0);
@@ -87,23 +87,23 @@ public class DecoderTest {
     final String TIME_AM = "03:55:00PM";
     ILoggingEvent event = decoder.decode(TIME_AM + " Hello world!\n");
     assertNotNull(event);
-    
+
     Date date = new SimpleDateFormat(format).parse(TIME_AM);
     long timestamp = date.getTime();
     assertTrue(timestamp > 0);
     assertEquals(timestamp, event.getTimeStamp());
   }
-  
+
   @Test
   public void testDecodeLevel() throws ParseException {
     decoder.setLayoutPattern("%level %msg%n");
     final String LEVEL = "TRACE";
     ILoggingEvent event = decoder.decode(LEVEL + " Hello world!\n");
     assertNotNull(event);
-    
+
     assertEquals(LEVEL, event.getLevel().toString());
   }
-  
+
   @Ignore("not yet implemented")
   @Test
   public void testDecodeLevelShortPattern() throws ParseException {
@@ -111,10 +111,9 @@ public class DecoderTest {
     final String LEVEL = "TRACE";
     ILoggingEvent event = decoder.decode(LEVEL.charAt(0) + " Hello world!\n");
     assertNotNull(event);
-    
+
     assertEquals(LEVEL, event.getLevel().toString());
   }
-  
   private class DecoderTestBase extends Decoder {}
 }
 

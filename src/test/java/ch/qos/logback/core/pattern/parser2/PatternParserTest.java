@@ -128,6 +128,18 @@ public class PatternParserTest {
     PatternInfo inf = results.get(0);
     assertEquals("'\\d{14,16}', '\\{foo\\}'", inf.getOption());
   }
+
+  @Test
+  public void testGetsOptionForMultipleConversionWords() {
+    // (Issue #1)
+    final String PATT = "%d{HH:MM} [%level] %logger{0} - %msg%n";
+    List<PatternInfo> patts = PatternParser.parse(PATT);
+    assertEquals("d", patts.get(0).getName());
+    assertEquals("HH:MM", patts.get(0).getOption());
+    assertEquals("logger", patts.get(2).getName());
+    assertEquals("0", patts.get(2).getOption());
+  }
+
   @Test
   public void testGetsFormatModifierLeftPad() {
     final String PATT = "%20logger";

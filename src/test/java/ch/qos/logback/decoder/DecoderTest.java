@@ -114,6 +114,7 @@ public class DecoderTest {
 
     assertEquals(LEVEL, event.getLevel().toString());
   }
+
   private class DecoderTestBase extends Decoder {}
 }
 

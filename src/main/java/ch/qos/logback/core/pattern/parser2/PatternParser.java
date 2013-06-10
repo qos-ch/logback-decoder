@@ -81,9 +81,9 @@ public class PatternParser {
     REGEX = 
         "%" +                                                   // pattern starter (required) 
         "(?<" + FORMAT + ">[-.]{0,2}\\d+(?:\\.\\d+)?)?" +       // format modifier (optional)
-        "(?<" + NAME + ">" + names + ")?" +                     // pattern name (optional)
-        "(?:\\((?<" + GROUP + ">[^)]*?)\\))?" +                 // grouping (optional)
-        "(?:\\{(?<" + OPTION + ">[^}]*?)\\})?";                 // conversion option (optional)
+        "(?<" + NAME   + ">" + names + ")?" +                   // pattern name (optional)
+        "(?<" + GROUP  + ">\\([^)]*?\\))?" +                    // grouping (optional)
+        "(?<" + OPTION + ">\\{[^}]*?\\})?";                     // conversion option (optional)
 
     REGEX_PATTERN = NamedPattern.compile(REGEX);
   }
@@ -108,31 +108,31 @@ public class PatternParser {
     while (m.find() && m.groupCount() > 1) {
       
       int start = m.start();
-      
-      // ignore pattern with escaped percent
+
+      // ignore pattern with escaped percent symbol
       if (isEscaped(layoutPattern, start)) {
         continue;
       }
 
-      // "group" here is the text in between parentheses within
-      // the layout pattern (this is not to be confused with a 
-      // regex capture group)
-      String group = getTextUpToFirstCloser(m.group(GROUP), '(', ')', false);
-      String opt = getTextUpToFirstCloser(buf + m.group(OPTION), '{', '}', true);
+      // parse the "group" and "option" (if any)
+      CapturedText group = getEnclosedText(layoutPattern, m.start(GROUP), '(', ')', false);
+      int nextPos        = minX(group.end(), m.start(OPTION));
+      CapturedText opt   = getEnclosedText(layoutPattern, nextPos, '{', '}', true);
+      int end            = minX(opt.end(), m.end());
 
       PatternInfo inf = new PatternInfo();
       
       inf.setOriginal(m.group(0))
           .setStart(start)
-          .setEnd(m.end())
-          .setGroup(group)
+          .setEnd(end)
+          .setGroup(group.value())
           .setName(m.group(NAME))
-          .setOption(opt)
+          .setOption(opt.value())
           .setFormatModifier(m.group(FORMAT));
 
       // recursively set children
-      if (group != null && !group.isEmpty()) {
-        inf.setChildren(parse(group));
+      if (!group.value().isEmpty()) {
+        inf.setChildren(parse(group.value()));
       }
 
       list.add(inf);
@@ -142,59 +142,56 @@ public class PatternParser {
   }
 
   /**
-   * Counts the occurrences of a target character in a string
-   * 
-   * @param s string to evaluate
-   * @param target the character to find
-   * @return the number of times the character occurs in the string
+   * Find a non-escaped character in a string
+   *
+   * @param haystack string to evaluate
+   * @param start position in the string from which to start the search
+   * @param needle character to find (an open/close char)
+   * @param ignoreQuoted flag to ignore open/close chars between quotes
+   * @return if found, the position of the character in the string; otherwise, -1
    */
-  private static int countOccurences(String s, char target) {
-    int i = -1, instances = 0;
-    while ((i = s.indexOf(target, i+1)) >= 0) {
-      if (!isEscaped(s, i)) {
-        instances++;
+  private static int findNonEscaped(String haystack, int start, char needle, boolean ignoreQuoted) {
+    int i = start - 1;
+    boolean found = false;
+    while ((i = haystack.indexOf(needle, i + 1)) >= 0) {
+      if (ignoreQuoted && isQuoted(haystack, i)) {
+        continue;
+      }
+      if (!isEscaped(haystack, i)) {
+        found = true;
+        break;
       }
     }
-    return instances;
+    return found ? i : -1;
   }
   
   /**
-   * Gets a substring of a given string from the beginning of the string
-   * up to the first non-escaped and non-quoted closing character (usually,
-   * a right-paren or a right-bracket)
-   * 
-   * @param s string to evaluate 
+   * Gets the text between two enclosing delimiters (an opening paren/bracket
+   * and a closing paren/bracket).
+   *
+   * @param s string to evaluate
+   * @param start position in the string from which to start the search
    * @param opener the opening character for a text group (a paren or bracket)
    * @param closer the closing character for a text group
    * @param ignoreQuoted flag to ignore open/close chars between quotes
-   * @return the substring (which may be equal to original)
+   * @return a {@link CapturedText}, containing the text
    */
-  private static String getTextUpToFirstCloser(String s, char opener, char closer, boolean ignoreQuoted) {
-    if (s == null) return null;
-    
-    // if the number of non-escaped opening chars and closing 
-    // chars are equal, the string doesn't contain a non-escaped
-    // closer
-    int numOpeners = countOccurences(s, opener);
-    int numClosers = countOccurences(s, closer);
-    if (numOpeners != numClosers) {
-      // find first non-escaped closer
-      int i = -1;
-      while ((i = s.indexOf(closer, i+1)) >= 0) {
-        if (ignoreQuoted && isQuoted(s, i)) {
-          continue;
-        }
-        if (!isEscaped(s, i)) {
-          break;
-        }
-      }
-      // get substring up to that closer
-      if (i > -1) {
-        s = s.substring(0, i);
-      }
+  private static CapturedText getEnclosedText(String s, int start, char opener, char closer, boolean ignoreQuoted) {
+    if (start < 0) return CapturedText.EMPTY;
+
+    // find the opening character
+    int i = findNonEscaped(s, start, opener, ignoreQuoted);
+    if (i > -1) {
+      start = i + 1;
     }
-    
-    return s;
+
+    // ...and the closing character; then get the text in between
+    i = findNonEscaped(s, start, closer, ignoreQuoted);
+    if (i > -1) {
+      s = s.substring(start, i);
+    }
+
+    return new CapturedText(i, s);
   }
   
   /**
@@ -403,5 +400,42 @@ public class PatternParser {
     }
     
     return buf.toString();
+  }
+
+  /**
+   * Gets the minimum of two values -- the first of which
+   * must be greater than -1
+   *
+   * @param a first value to compare, must be > -1
+   * @param b second value
+   * @return if a > -1, then the minimum of a or b; otherwise, b
+   */
+  private static int minX(int a, int b) {
+    if (a > -1) {
+      return a < b ? a : b;
+    } else {
+      return b;
+    }
+  }
+
+  /**
+   * Data struct for captured text (for a group or option)
+   */
+  private static class CapturedText {
+    public static final CapturedText EMPTY = new CapturedText(-1, "");
+
+    private int endPos;
+    private String value;
+
+    public CapturedText(int endPos, String value) {
+      this.endPos = endPos;
+      this.value = value;
+    }
+
+    /** Gets the ending position of the captured text */
+    public int end() { return endPos; }
+
+    /** Gets the string value of the captured text */
+    public String value() { return value; }
   }
 }

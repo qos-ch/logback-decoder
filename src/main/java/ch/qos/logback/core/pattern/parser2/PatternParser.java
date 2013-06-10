@@ -17,16 +17,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
 import ch.qos.logback.core.spi.ScanException;
 import ch.qos.logback.decoder.PatternNames;
 
-import com.google.code.regexp.NamedMatcher;
-import com.google.code.regexp.NamedPattern;
+import com.google.code.regexp.Matcher;
+import com.google.code.regexp.Pattern;
 
 /**
  * Parses a layout pattern for its individual patterns and conversion specifiers
@@ -42,7 +40,7 @@ public class PatternParser {
   private static final String GROUP = "grp";
 
   // general regex pattern for layout patterns
-  private static final NamedPattern REGEX_PATTERN;
+  private static final Pattern REGEX_PATTERN;
   private static final String REGEX;
   static {
     // get all possible pattern names, sorted by length (longest to shortest)
@@ -85,7 +83,7 @@ public class PatternParser {
         "(?<" + GROUP  + ">\\([^)]*?\\))?" +                    // grouping (optional)
         "(?<" + OPTION + ">\\{[^}]*?\\})?";                     // conversion option (optional)
 
-    REGEX_PATTERN = NamedPattern.compile(REGEX);
+    REGEX_PATTERN = Pattern.compile(REGEX);
   }
 
   /**
@@ -101,8 +99,8 @@ public class PatternParser {
 
     List<PatternInfo> list = new LinkedList<PatternInfo>();
 
-    NamedMatcher m = REGEX_PATTERN.matcher(layoutPattern);
-    
+    Matcher m = REGEX_PATTERN.matcher(layoutPattern);
+
     // make sure more than one group is detected (otherwise we might have only
     // matched the percent symbol)
     while (m.find() && m.groupCount() > 1) {

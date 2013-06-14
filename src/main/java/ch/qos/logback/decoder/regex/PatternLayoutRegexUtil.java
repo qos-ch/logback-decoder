@@ -22,12 +22,12 @@ import ch.qos.logback.core.pattern.parser2.PatternParser;
 
 /**
  * Utility to convert a layout pattern into a regular expression
- * 
+ *
  * @author Anthony Trinh
  */
 public class PatternLayoutRegexUtil {
   private PatternLayoutRegexHelper converter;
-  
+
   /**
    * Constructs a PatternLayoutRegexUtil with a new converter
    * and a default context base
@@ -35,23 +35,23 @@ public class PatternLayoutRegexUtil {
   public PatternLayoutRegexUtil() {
     this(new ContextBase());
   }
-  
+
   /**
    * Constructs a PatternLayoutRegexUtil with a new converter
    * and specified context
-   * 
+   *
    * @param context desired context of underlying converter
    */
   public PatternLayoutRegexUtil(ContextBase context) {
     converter = new PatternLayoutRegexHelper();
     converter.setContext(context);
   }
-    
+
   /**
    * Converts a layout pattern to a regular expression pattern
-   * 
+   *
    * @param layoutPattern the layout pattern to be evaluated
-   * @return the pattern with the log-layout patterns replaced with equivalent regexes 
+   * @return the pattern with the log-layout patterns replaced with equivalent regexes
    */
   public String toRegex(String layoutPattern) {
     converter.setPattern(PatternParser.escapeRegexCharsInPattern(layoutPattern));
@@ -59,25 +59,30 @@ public class PatternLayoutRegexUtil {
       converter.start();
       //StatusPrinter.printIfErrorsOccured(converter.getContext());
     }
-    String conversion = converter.doLayout(null); 
-    return PatternParser.switchEscapeSequenceToSlashes(conversion);
+    String conversion = converter.doLayout(null);
+    String patt = PatternParser.switchEscapeSequenceToSlashes(conversion);
+
+    // Allow flexible spacing
+    patt = patt.replaceAll("\\s+", "\\\\s+");
+
+    return patt;
   }
 }
 
 /**
  * Internal helper class that uses the converter logic of {@link PatternLayoutBase}
- * to perform the layout-pattern-to-regex conversion. 
- * 
- * TODO: It might actually be simpler to search and replace the layout-patterns 
+ * to perform the layout-pattern-to-regex conversion.
+ *
+ * TODO: It might actually be simpler to search and replace the layout-patterns
  * with their regex equivalents.
  */
 final class PatternLayoutRegexHelper extends PatternLayoutBase<Void> {
-  
+
   @SuppressWarnings("serial")
   static private final Map<String, String> defaultConverterMap = new HashMap<String, String>() {{
     put("BARE", IdentityRegexConverter.class.getName());
     put("replace", ReplaceRegexConverter.class.getName());
-    
+
     put("d", DateRegexConverter.class.getName());
     put("date", DateRegexConverter.class.getName());
 
@@ -107,7 +112,7 @@ final class PatternLayoutRegexHelper extends PatternLayoutBase<Void> {
 
     put("L", LineOfCallerRegexConverter.class.getName());
     put("line", LineOfCallerRegexConverter.class.getName());
-    
+
     put("F", FileOfCallerRegexConverter.class.getName());
     put("file", FileOfCallerRegexConverter.class.getName());
 
@@ -129,16 +134,16 @@ final class PatternLayoutRegexHelper extends PatternLayoutBase<Void> {
 
     put("cn", ContextNameRegexConverter.class.getName());
     put("contextName", ContextNameRegexConverter.class.getName());
-    
+
     put("caller", CallerDataRegexConverter.class.getName());
 
     put("marker", MarkerRegexConverter.class.getName());
 
     put("property", PropertyRegexConverter.class.getName());
-    
+
     put("n", LineSeparatorRegexConverter.class.getName());
   }};
-  
+
   @Override
   public Map<String, String> getDefaultConverterMap() {
     return defaultConverterMap;

@@ -18,26 +18,35 @@ import ch.qos.logback.classic.spi.CallerData;
 import java.util.regex.Pattern;
 
 /**
- * Constant regular-expression patterns 
- * 
+ * Constant regular-expression patterns
+ *
  * @author Anthony Trinh
  */
 public abstract class RegexPatterns {
   abstract class Common {
-    public static final String ANYTHING_REGEX = ".+";
+    public static final String ANYTHING_REGEX = ".+?";
     public static final String NON_WHITESPACE_REGEX = "[\\S]+";
-    public static final String ANYTHING_MULTILINE_REGEX = "(?s).+";
+    public static final String ANYTHING_MULTILINE_REGEX = "(?s).+?";
     public static final String CSV_EQUALITIES_REGEX = "([^,\\s=]+)=([^,\\s=]+)(?:,\\s*(?:[^,\\s=]+)=(?:[^,\\s=]+))*?";
-    
+
     public static final String IDENTIFIER_REGEX = "[$_a-zA-z0-9]+";
     public static final String FILENAME_REGEX = IDENTIFIER_REGEX + "\\.java";
-    
+
     public static final String INTEGER_REGEX = "\\d+";
-    public static final String STACKTRACE_REGEX = "(?s)(.+(?:Exception|Error)[^\\n]+(?:\\s++at [^\\n]+)++)(?:\\s*\\.{3}[^\\n]++)?\\s*";
-    public static final String DATE_ISO8601_REGEX = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2},\\d{3}";
+    public static final String STACKTRACE_REGEX = "(?s)(.+(?:Exception|Error)[^\\n]+(?:\\s++at\\s+[^\\n]+)++)(?:\\s*\\.{3}[^\\n]++)?\\s*";
+    public static final String DATE_ISO8601_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2},\\d{3}";
   }
-  
-  public static final String CALLER_STACKTRACE_REGEX = "(?s)((?:" + Pattern.quote(CallerDataConverter.DEFAULT_CALLER_LINE_PREFIX) + "\\d+)|(?:"+ Pattern.quote(CallerData.CALLER_DATA_NA) +"))\\s+at(.*)";
+
+  // TODO: Move this out since it's not a regex pattern.
+  // ignore last character in CallerData.CALLER_DATA_NA, which is a new-line
+  static final String CALLER_DATA_NA = CallerData.CALLER_DATA_NA.substring(0, CallerData.CALLER_DATA_NA.length() - 1);
+
+  public static final String CALLER_STACKTRACE_REGEX = "((?s)(?:"
+                      + Pattern.quote(CallerDataConverter.DEFAULT_CALLER_LINE_PREFIX)
+                      + "\\d+\\s+at(.*)))"
+                      + "|(?:"
+                      + Pattern.quote(CALLER_DATA_NA)
+                      + ")";
   public static final String CLASS_OF_CALLER_REGEX = Common.IDENTIFIER_REGEX + "|" + Pattern.quote(CallerData.NA);
   public static final String CONTEXT_NAME_REGEX = Common.NON_WHITESPACE_REGEX;
   public static final String FILE_OF_CALLER_REGEX = Common.FILENAME_REGEX;

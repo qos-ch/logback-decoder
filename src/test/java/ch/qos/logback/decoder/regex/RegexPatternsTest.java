@@ -37,11 +37,6 @@ public class RegexPatternsTest {
       "Caller+1   at mainPackage.sub.sample.Bar.createLoggingRequest(Bar.java:17)\n" +
       "Caller+2   at mainPackage.ConfigTester.main(ConfigTester.java:38)";
 
-  private static final String CALLER_STACKTRACE3 =
-      CallerData.CALLER_DATA_NA + "   at mainPackage.sub.sample.Bar.sampleMethodName(Bar.java:22)\n" +
-      CallerData.CALLER_DATA_NA + "   at mainPackage.sub.sample.Bar.createLoggingRequest(Bar.java:17)\n" +
-      CallerData.CALLER_DATA_NA + "   at mainPackage.ConfigTester.main(ConfigTester.java:38)";
-
   private static final String MSG_WITH_STACKTRACE = "I couldn't do it because of this exception\n" +
       "mainPackage.foo.bar.TestException: Houston we have a problem\n" +
       "  at mainPackage.foo.bar.TestThrower.fire(TestThrower.java:22)\n" +
@@ -398,6 +393,18 @@ public class RegexPatternsTest {
   }
 
   @Test
+  public void testLoggerRegexMatchesLazily() {
+    final String REGEX = RegexPatterns.LOGGER_NAME_REGEX;
+    final String GROUP_NAME = PatternNames.LOGGER_NAME;
+    Pattern pattern = Pattern.compile(String.format("<.*?> (?<%1$s>%2$s): \\d{2}:\\d{2}:\\d{2} - .*\\n", GROUP_NAME, REGEX));
+
+    Matcher m = pattern.matcher("<DEBUG> MyLoggerName: 12:30:25 - hello world!\n");
+    assertTrue(m.find());
+    assertTrue(m.groupCount() > 0);
+    assertEquals("MyLoggerName", m.group(GROUP_NAME).toString());
+  }
+
+  @Test
   public void testMessageRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.MESSAGE_REGEX;
 
@@ -656,7 +663,7 @@ public class RegexPatternsTest {
 
     assertTrue(CALLER_STACKTRACE1.matches(REGEX));
     assertTrue(CALLER_STACKTRACE2.matches(REGEX));
-    assertTrue(CALLER_STACKTRACE3.matches(REGEX));
+    assertTrue(RegexPatterns.CALLER_DATA_NA.matches(REGEX));
     assertFalse("java.lang.NullPointerException: Houston we have a problem".matches(REGEX));
     assertFalse("".matches(REGEX));
   }
@@ -677,10 +684,10 @@ public class RegexPatternsTest {
     assertTrue(m.groupCount() > 0);
     assertEquals(CALLER_STACKTRACE2, m.group(GROUP_NAME).toString());
 
-    m = pattern.matcher("06/20/2012: <TRACE> hello world!\n"+ CALLER_STACKTRACE3 +"\n");
+    m = pattern.matcher("06/20/2012: <TRACE> hello world!\n"+ CallerData.CALLER_DATA_NA +"\n");
     assertTrue(m.find());
     assertTrue(m.groupCount() > 0);
-    assertEquals(CALLER_STACKTRACE3, m.group(GROUP_NAME).toString());
+    assertEquals(RegexPatterns.CALLER_DATA_NA, m.group(GROUP_NAME).toString());
 
     m = pattern.matcher("06/20/2012: <TRACE> hello world!\njava.lang.NullPointerException: Houston we have a problem\n");
     assertFalse(m.find());

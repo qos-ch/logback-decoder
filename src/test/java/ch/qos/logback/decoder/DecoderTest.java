@@ -107,12 +107,26 @@ public class DecoderTest {
   @Ignore("not yet implemented")
   @Test
   public void testDecodeLevelShortPattern() throws ParseException {
+    // FIXME: Modify LevelParser to handle the "-1" in "%.-1level".
     decoder.setLayoutPattern("%.-1level %msg%n");
     final String LEVEL = "TRACE";
     ILoggingEvent event = decoder.decode(LEVEL.charAt(0) + " Hello world!\n");
     assertNotNull(event);
 
     assertEquals(LEVEL, event.getLevel().toString());
+  }
+
+  @Ignore("not yet implemented")
+  @Test
+  public void testDecodeLoggerName() {
+    final String INPUT = "2013-06-12 15:27:15.044 INFO  [main] KdbFxFeedhandlerApp: Running com.ubs.sprint.kdb.fx.feedhandler.server.KdbFxFeedhandlerApp from directory: /sbclocal/sprint/kdb-fx-feedhandler/0.0.23/bin/.\n";
+    final String PATT = "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{0}: %msg%n";
+    decoder.setLayoutPattern(PATT);
+    ILoggingEvent event = decoder.decode(INPUT);
+    assertNotNull(event);
+
+    // FIXME: Add logger-name parser.
+    assertEquals("KdbFxFeedhandlerApp", event.getLoggerName());
   }
 
   private class DecoderTestBase extends Decoder {}

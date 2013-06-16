@@ -84,7 +84,7 @@ public abstract class Decoder {
     LoggingEvent event = null;
     Matcher matcher = regexPattern.matcher(inputLine);
 
-    logger.trace("regex: {}", matcher.toString());
+    logger.trace("regex: {}", regexPattern.toString());
 
     if (matcher.find() && matcher.groupCount() > 0) {
       event = new LoggingEvent();

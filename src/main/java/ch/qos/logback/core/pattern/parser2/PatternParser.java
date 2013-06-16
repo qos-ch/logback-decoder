@@ -12,15 +12,22 @@
  */
 package ch.qos.logback.core.pattern.parser2;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.spi.ScanException;
+import ch.qos.logback.decoder.ParserUtil;
 import ch.qos.logback.decoder.PatternNames;
 
 import com.google.code.regexp.Matcher;
@@ -28,7 +35,7 @@ import com.google.code.regexp.Pattern;
 
 /**
  * Parses a layout pattern for its individual patterns and conversion specifiers
- * 
+ *
  * @author Anthony Trinh
  */
 public class PatternParser {
@@ -76,8 +83,8 @@ public class PatternParser {
     // join patterns by pipe
     String names = StringUtils.join(patts, "|");
 
-    REGEX = 
-        "%" +                                                   // pattern starter (required) 
+    REGEX =
+        "%" +                                                   // pattern starter (required)
         "(?<" + FORMAT + ">[-.]{0,2}\\d+(?:\\.\\d+)?)?" +       // format modifier (optional)
         "(?<" + NAME   + ">" + names + ")?" +                   // pattern name (optional)
         "(?<" + GROUP  + ">\\([^)]*?\\))?" +                    // grouping (optional)
@@ -86,10 +93,57 @@ public class PatternParser {
     REGEX_PATTERN = Pattern.compile(REGEX);
   }
 
+  private static Logger logger(){
+    return LoggerFactory.getLogger(PatternParser.class);
+  }
+
+  private static DateFormat parseDateFormat(String option) {
+    TimeZone tz = null;
+
+    // default to ISO8601 if no conversion pattern given
+    if (option == null || option.isEmpty() || option.equalsIgnoreCase(CoreConstants.ISO8601_STR)) {
+      option = CoreConstants.ISO8601_PATTERN;
+    }
+
+    // Parse the last option in the conversion pattern as a time zone.
+    // Make sure the comma is not escaped/quoted.
+    int idx = option.lastIndexOf(",");
+    if ((idx > -1)
+        && (idx + 1 < option.length()
+        && !ParserUtil.isEscaped(option, idx)
+        && !ParserUtil.isQuoted(option, idx))) {
+
+      // make sure the string isn't the millisecond pattern, which
+      // can appear after a comma
+      String tzStr = option.substring(idx + 1).trim();
+      if (!tzStr.startsWith("SSS")) {
+        option = option.substring(0, idx);
+        tz = TimeZone.getTimeZone(tzStr);
+        if (!tz.getID().equalsIgnoreCase(tzStr)) {
+          logger().warn("Time zone (\"{}\") defaulting to \"{}\".", tzStr, tz.getID());
+        }
+      }
+    }
+
+    // strip quotes from date format because SimpleDateFormat doesn't understand them
+    if (option.length() > 1 && option.startsWith("\"") && option.endsWith("\"")) {
+      option = option.substring(1, option.length() - 1);
+    }
+
+    DateFormat format = new SimpleDateFormat(option);
+    format.setLenient(true);
+
+    if (tz != null) {
+      format.setTimeZone(tz);
+    }
+
+    return format;
+  }
+
   /**
    * Parses a layout pattern for its individual patterns and conversion
    * specifiers
-   * 
+   *
    * @param layoutPattern
    *          layout pattern to parse
    * @return layout-pattern information for each sub pattern; or {@code null} if
@@ -104,11 +158,11 @@ public class PatternParser {
     // make sure more than one group is detected (otherwise we might have only
     // matched the percent symbol)
     while (m.find() && m.groupCount() > 1) {
-      
+
       int start = m.start();
 
       // ignore pattern with escaped percent symbol
-      if (isEscaped(layoutPattern, start)) {
+      if (ParserUtil.isEscaped(layoutPattern, start)) {
         continue;
       }
 
@@ -118,8 +172,9 @@ public class PatternParser {
       CapturedText opt   = getEnclosedText(layoutPattern, nextPos, '{', '}', true);
       int end            = minX(opt.end(), m.end());
 
-      PatternInfo inf = new PatternInfo();
-      
+      boolean isDate = PatternNames.getFullName(m.group(NAME)).equals("date");
+      PatternInfo inf = isDate ? new DatePatternInfo() : new PatternInfo();
+
       inf.setOriginal(m.group(0))
           .setStart(start)
           .setEnd(end)
@@ -127,6 +182,10 @@ public class PatternParser {
           .setName(m.group(NAME))
           .setOption(opt.value())
           .setFormatModifier(m.group(FORMAT));
+
+      if (isDate) {
+        ((DatePatternInfo)inf).setDateFormat(parseDateFormat(opt.value()));
+      }
 
       // recursively set children
       if (!group.value().isEmpty()) {
@@ -152,17 +211,17 @@ public class PatternParser {
     int i = start - 1;
     boolean found = false;
     while ((i = haystack.indexOf(needle, i + 1)) >= 0) {
-      if (ignoreQuoted && isQuoted(haystack, i)) {
+      if (ignoreQuoted && ParserUtil.isQuoted(haystack, i)) {
         continue;
       }
-      if (!isEscaped(haystack, i)) {
+      if (!ParserUtil.isEscaped(haystack, i)) {
         found = true;
         break;
       }
     }
     return found ? i : -1;
   }
-  
+
   /**
    * Gets the text between two enclosing delimiters (an opening paren/bracket
    * and a closing paren/bracket).
@@ -191,63 +250,10 @@ public class PatternParser {
 
     return new CapturedText(i, s);
   }
-  
-  /**
-   * Determines if the character at the specified position
-   * of a string is escaped with a backslash
-   * 
-   * @param s string to evaluate
-   * @param pos the position of the character to evaluate
-   * @return true if the character is escaped; otherwise false
-   */
-  static private boolean isEscaped(String s, int pos) {
-          
-    // Count the backslashes preceding this position. If it's
-    // even, there is no escape and the slashes are just literals.
-    // If it's odd, one of the slashes (the last one) is escaping
-    // the character at the given position.
-    int numSlashes = 0;
-    while (pos > 0 && (s.charAt(pos - 1) == '\\')) {
-      pos--;
-      numSlashes++;
-    }
-    return numSlashes % 2 != 0;
-  }
-  
-  /**
-   * Determines if the character at the specific position
-   * of a string is quoted (by single-quote or double)
-   * 
-   * @param s string to evaluate
-   * @param pos the position of the character to evaluate
-   * @return
-   */
-  static private boolean isQuoted(String s, int pos) {
-    boolean quoted = false;
-    
-    int len = s.length();
-    if (pos == 0 || pos == len - 1) {
-      return false;
-    }
-    
-    // Find preceding and succeeding quotes
-    String firstHalf = s.substring(0, pos);
-    int posLeftQ = firstHalf.lastIndexOf('\'');
-    int posRightQ = s.indexOf('\'', pos+1);
-    quoted = (posLeftQ > -1 && posRightQ > -1);
-    
-    if (!quoted) {
-      posLeftQ = firstHalf.lastIndexOf('"');
-      posRightQ = s.indexOf('"', pos+1);
-      quoted = (posLeftQ > -1 && posRightQ > -1);
-    }
-    
-    return quoted;
-  }
 
   /**
    * Removes all occurrences of the escape sequence in a string
-   * 
+   *
    * @param s
    *          the string containing the escape sequence
    * @return the modified string
@@ -258,11 +264,11 @@ public class PatternParser {
 
   /**
    * Changes the escape sequences in a string to backslashes
-   * 
+   *
    * @param s
    *          the string containing the escape sequence
    * @return the modified string
-   * 
+   *
    */
   public static String switchEscapeSequenceToSlashes(String s) {
     return s.replace(ESC_SEQ, "\\");
@@ -278,13 +284,13 @@ public class PatternParser {
   static public final String ESC_SEQ = "##ESC\033\033##";
   static private final int ESC_SEQ_LEN = ESC_SEQ.length();
   static private final Pattern REGEX_CHARS_PATTERN = Pattern.compile("([\\[\\]?.+*$(){}])");
-  
+
   /**
    * Escapes regex characters in a substring. This is used to escape any regex
    * special chars in a layout pattern, which could be unintentionally
    * interpreted by the Java regex engine.
-   * 
-   * @param s string buffer, containing the substring to be escaped; escape sequences are 
+   *
+   * @param s string buffer, containing the substring to be escaped; escape sequences are
    * inserted for literals in this buffer
    * @param start zero-based starting character position within {@code s} to be escaped
    * @param length number of characters of substring
@@ -292,7 +298,7 @@ public class PatternParser {
    */
   static private int escapeRegexChars(StringBuffer s, int start, int length) {
     String substr = s.substring(start, start + length);
-    
+
     Matcher matcher = REGEX_CHARS_PATTERN.matcher(substr);
     int numNewChars = 0;
 
@@ -302,12 +308,12 @@ public class PatternParser {
     }
     return numNewChars;
   }
-  
+
   /**
    * Unescapes (removes escape sequence) regex characters in a substring. This
    * is the converse of {@link #escapeRegexChars(StringBuffer, int, int)}.
-   * 
-   * @param s string buffer, containing the substring to be unescaped; escape sequences are 
+   *
+   * @param s string buffer, containing the substring to be unescaped; escape sequences are
    * removed from literals in this buffer
    * @param start zero-based starting character position within {@code s} to be unescaped
    * @param length number of characters of substring
@@ -317,11 +323,11 @@ public class PatternParser {
     String substr = s.substring(start, start + length);
     int numRemovedChars = 0;
     Matcher matcher = REGEX_CHARS_PATTERN.matcher(substr);
-    
+
     while (matcher.find()) {
       int idxOfRegexChar = matcher.start() - numRemovedChars + start;
       int idxOfEscSeq = idxOfRegexChar - ESC_SEQ_LEN;
-      
+
       if (idxOfEscSeq >= 0) {
         String prefix = s.substring(idxOfEscSeq, idxOfRegexChar);
         if (prefix.equals(ESC_SEQ)) {
@@ -332,71 +338,71 @@ public class PatternParser {
     }
     return numRemovedChars;
   }
-  
-  
+
+
   /**
    * Escapes regex characters in literals of a layout pattern. Any other regex
    * characters (in keywords, option lists, and format modifiers) are safely
    * ignored.
-   * 
+   *
    * @param pattern the layout pattern to evaluate
-   * @return the layout pattern with escaped regex chars in its literals 
+   * @return the layout pattern with escaped regex chars in its literals
    */
   static public String escapeRegexCharsInPattern(String pattern) {
     StringBuffer buf = new StringBuffer(pattern);
-    
+
     try {
       int numNewChars = 0;
-      
+
       Node n = new Parser<Void>(pattern).parse();
       while (n != null) {
         if (n.getType() == Node.LITERAL) {
           numNewChars += escapeRegexChars(
-              buf, 
-              numNewChars + n.getPosition(), 
+              buf,
+              numNewChars + n.getPosition(),
               n.getValue().toString().length()
               );
         }
         n = n.getNext();
       }
-      
+
     } catch (ScanException e) {
       //e.printStackTrace();
     }
-    
+
     return buf.toString();
   }
-  
+
   /**
-   * Unescapes (removes escape sequence) regex characters in literals of a 
-   * layout pattern. Escape sequences outside of literals (in keywords, 
+   * Unescapes (removes escape sequence) regex characters in literals of a
+   * layout pattern. Escape sequences outside of literals (in keywords,
    * option lists, and format modifiers) are safely ignored.
-   * 
+   *
    * @param pattern the layout pattern to evaluate
-   * @return the layout pattern with escaped regex chars in its literals 
+   * @return the layout pattern with escaped regex chars in its literals
    */
   static public String unescapeRegexCharsInPattern(String pattern) {
     StringBuffer buf = new StringBuffer(pattern);
-    
+
     try {
       int numRemovedChars = 0;
-      
+
       Node n = new Parser<Void>(pattern).parse();
       while (n != null) {
         if (n.getType() == Node.LITERAL) {
           numRemovedChars += unescapeRegexChars(
-              buf, 
-              n.getPosition() - numRemovedChars, 
+              buf,
+              n.getPosition() - numRemovedChars,
               n.getValue().toString().length()
               );
         }
         n = n.getNext();
       }
-      
+
     } catch (ScanException e) {
       //e.printStackTrace();
     }
-    
+
     return buf.toString();
   }
 

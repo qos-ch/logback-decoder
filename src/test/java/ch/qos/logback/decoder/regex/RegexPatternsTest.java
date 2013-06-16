@@ -114,7 +114,7 @@ public class RegexPatternsTest {
   // improved!
 
   @Test
-  public void testDateRegexMatchesIsolatedInput() {
+  public void dateRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.Common.DATE_ISO8601_REGEX;
 
     assertTrue("2006-10-20 14:06:49,812".matches(REGEX));
@@ -122,7 +122,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testDateRegexMatchesComplexInput() {
+  public void dateRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.Common.DATE_ISO8601_REGEX;
     final String GROUP_NAME = PatternNames.DATE;
     Pattern pattern = Pattern.compile(String.format("(?<%1$s>%2$s) <.*>: .*\\n", GROUP_NAME, REGEX));
@@ -137,7 +137,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testLineOfCallerRegexMatchesIsolatedInput() {
+  public void lineOfCallerRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.LINE_OF_CALLER_REGEX;
 
     assertTrue("24".matches(REGEX));
@@ -151,7 +151,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testLineOfCallerRegexMatchesComplexInput() {
+  public void lineOfCallerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.LINE_OF_CALLER_REGEX;
     final String GROUP_NAME = PatternNames.LINE_OF_CALLER;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} .*\\.java:(?<%1$s>%2$s) <.*>: .*\\n", GROUP_NAME, REGEX));
@@ -188,7 +188,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testFileOfCallerRegexMatchesIsolatedInput() {
+  public void fileOfCallerRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.FILE_OF_CALLER_REGEX;
 
     assertTrue("FooBar.java".matches(REGEX));
@@ -201,7 +201,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testFileOfCallerRegexMatchesComplexInput() {
+  public void fileOfCallerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.FILE_OF_CALLER_REGEX;
     final String GROUP_NAME = PatternNames.FILE_OF_CALLER;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} (?<%1$s>%2$s) <.*>: .*\\n", GROUP_NAME, REGEX));
@@ -231,7 +231,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testRelativeTimeRegexMatchesIsolatedInput() {
+  public void relativeTimeRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.RELATIVE_TIME_REGEX;
 
     assertTrue("00001234".matches(REGEX));
@@ -241,7 +241,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testRelativeTimeRegexMatchesComplexInput() {
+  public void relativeTimeRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.RELATIVE_TIME_REGEX;
     final String GROUP_NAME = PatternNames.RELATIVE_TIME;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} (?<%1$s>%2$s) <.*>: .*\\n", GROUP_NAME, REGEX));
@@ -264,7 +264,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testLevelRegexMatchesIsolatedInput() {
+  public void levelRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.LEVEL_REGEX;
 
     assertTrue("OFF".matches(REGEX));
@@ -280,7 +280,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testLevelRegexMatchesComplexInput() {
+  public void levelRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.LEVEL_REGEX;
     final String GROUP_NAME = PatternNames.LEVEL;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(?<%1$s>%2$s)>: .*\\n", GROUP_NAME, REGEX));
@@ -331,7 +331,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testThreadRegexMatchesIsolatedInput() {
+  public void threadRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.THREAD_NAME_REGEX;
 
     assertTrue("main".matches(REGEX));
@@ -342,7 +342,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testThreadRegexMatchesComplexInput() {
+  public void threadRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.THREAD_NAME_REGEX;
     final String GROUP_NAME = PatternNames.THREAD_NAME;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*> \\[(?<%1$s>%2$s)\\]: .*\\n", GROUP_NAME, REGEX));
@@ -362,7 +362,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testLoggerRegexMatchesIsolatedInput() {
+  public void loggerRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.LOGGER_NAME_REGEX;
 
     assertTrue("MyLoggerName".matches(REGEX));
@@ -373,7 +373,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testLoggerRegexMatchesComplexInput() {
+  public void loggerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.LOGGER_NAME_REGEX;
     final String GROUP_NAME = PatternNames.LOGGER_NAME;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*> \\[(?<%1$s>%2$s)\\]: .*\\n", GROUP_NAME, REGEX));
@@ -393,7 +393,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testLoggerRegexMatchesLazily() {
+  public void loggerRegexMatchesLazily() {
     final String REGEX = RegexPatterns.LOGGER_NAME_REGEX;
     final String GROUP_NAME = PatternNames.LOGGER_NAME;
     Pattern pattern = Pattern.compile(String.format("<.*?> (?<%1$s>%2$s): \\d{2}:\\d{2}:\\d{2} - .*\\n", GROUP_NAME, REGEX));
@@ -405,7 +405,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testMessageRegexMatchesIsolatedInput() {
+  public void messageRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.MESSAGE_REGEX;
 
     assertTrue(MSG_WITH_STACKTRACE.matches(REGEX));
@@ -414,7 +414,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testMessageRegexMatchesComplexInput() {
+  public void messageRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.MESSAGE_REGEX;
     final String GROUP_NAME = PatternNames.MESSAGE;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <.*>: (?<%1$s>%2$s) !!!\\n", GROUP_NAME, REGEX));
@@ -434,7 +434,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testClassOfCallerRegexMatchesIsolatedInput() {
+  public void classOfCallerRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.CLASS_OF_CALLER_REGEX;
 
     assertTrue("MyClassName".matches(REGEX));
@@ -446,7 +446,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testClassOfCallerRegexMatchesComplexInput() {
+  public void classOfCallerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.CLASS_OF_CALLER_REGEX;
     final String GROUP_NAME = PatternNames.CLASS_OF_CALLER;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(?<%1$s>%2$s)>: .*", GROUP_NAME, REGEX));
@@ -466,7 +466,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testMethodOfCallerRegexMatchesIsolatedInput() {
+  public void methodOfCallerRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.METHOD_OF_CALLER_REGEX;
 
     assertTrue("methodName".matches(REGEX));
@@ -476,7 +476,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testMethodOfCallerRegexMatchesComplexInput() {
+  public void methodOfCallerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.METHOD_OF_CALLER_REGEX;
     final String GROUP_NAME = PatternNames.METHOD_OF_CALLER;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} <(?<%1$s>%2$s)>: .*", GROUP_NAME, REGEX));
@@ -491,7 +491,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testMDCRegexMatchesIsolatedInput() {
+  public void mDCRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.MDC_REGEX;
 
     assertTrue("key=value".matches(REGEX));
@@ -507,7 +507,7 @@ public class RegexPatternsTest {
 
   @Ignore
   @Test
-  public void testMDCRegexMatchesComplexInput() {
+  public void mDCRegexMatchesComplexInput() {
 
     /*
      * XXX: I can't figure out how to use the MDC regex in the middle of a
@@ -578,7 +578,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testThrowableProxyRegexMatchesIsolatedInput() {
+  public void throwableProxyRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.EXCEPTION_REGEX;
 
     assertTrue(STACKTRACE1.matches(REGEX));
@@ -590,7 +590,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testThrowableProxyRegexMatchesComplexInput() {
+  public void throwableProxyRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.EXCEPTION_REGEX;
     final String GROUP_NAME = PatternNames.EXCEPTION;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: EXCEPTION - (?<%1$s>%2$s)\\n", GROUP_NAME, REGEX));
@@ -623,7 +623,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testMarkerRegexMatchesIsolatedInput() {
+  public void markerRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.MARKER_REGEX;
 
     assertTrue("markerName".matches(REGEX));
@@ -633,7 +633,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testMarkerRegexMatchesComplexInput() {
+  public void markerRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.MARKER_REGEX;
     final String GROUP_NAME = PatternNames.MARKER;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: <(?<%1$s>%2$s)> .*\\n", GROUP_NAME, REGEX));
@@ -658,7 +658,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testCallerDataRegexMatchesIsolatedInput() {
+  public void callerDataRegexMatchesIsolatedInput() {
     final String REGEX = RegexPatterns.CALLER_STACKTRACE_REGEX;
 
     assertTrue(CALLER_STACKTRACE1.matches(REGEX));
@@ -669,7 +669,7 @@ public class RegexPatternsTest {
   }
 
   @Test
-  public void testCallerDataRegexMatchesComplexInput() {
+  public void callerDataRegexMatchesComplexInput() {
     final String REGEX = RegexPatterns.CALLER_STACKTRACE_REGEX;
     final String GROUP_NAME = PatternNames.CALLER_STACKTRACE;
     Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4}: <.*> .*\\n(?<%1$s>%2$s)\\n", GROUP_NAME, REGEX));

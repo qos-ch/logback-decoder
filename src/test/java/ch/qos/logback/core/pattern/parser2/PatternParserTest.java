@@ -24,7 +24,7 @@ import org.junit.Test;
 public class PatternParserTest {
 
   @Test
-  public void testGetsName() {
+  public void getsName() {
     final String PATT = "%msg%n";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(2, results.size());
@@ -33,7 +33,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsGroupContents() {
+  public void getsGroupContents() {
     final String PATT = "%cyan(%logger [%thread])";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -42,7 +42,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsGroupContentsWithEscapedParens() {
+  public void getsGroupContentsWithEscapedParens() {
     final String PATT = "%cyan(%logger \\(%thread\\))";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -51,7 +51,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGroupContentsWith2SlashesDoesNotGetCloseParen() {
+  public void groupContentsWith2SlashesDoesNotGetCloseParen() {
     // this is supposed to trick the parser into thinking that
     // there's an escaped right-paren, but the escape is itself
     // escaped, which makes it a literal slash followed by a
@@ -64,7 +64,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGroupContentsWith2SlashesDoesNotGetDecoyParens() {
+  public void groupContentsWith2SlashesDoesNotGetDecoyParens() {
     final String PATT = "%cyan(%logger \\(%thread\\\\) ) )";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -73,7 +73,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGroupContentsWith3SlashesGetsCloseParen() {
+  public void groupContentsWith3SlashesGetsCloseParen() {
     // the last of the "triplets" is actually escaping its
     // adjacent right-paren
     final String PATT = "%cyan(%logger \\(%thread\\\\\\))";
@@ -84,7 +84,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsGroupContentsIgnoresUnrelatedCloseParen() {
+  public void getsGroupContentsIgnoresUnrelatedCloseParen() {
     // this pattern has an extra close-paren at the end, which the parser should ignore
     final String PATT = "%cyan(%logger \\(%thread\\)) foo bar)";
     List<PatternInfo> results = PatternParser.parse(PATT);
@@ -94,7 +94,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsOptionWithSingleQuotes() {
+  public void getsOptionWithSingleQuotes() {
     final String PATT = "%replace(%logger [%thread]){'\\d{14,16}', 'XXXX'}";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -103,7 +103,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsOptionWithDoubleQuotes() {
+  public void getsOptionWithDoubleQuotes() {
     final String PATT = "%replace(%logger [%thread]){\"\\d{14,16}\", \"XXXX\"}";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -112,7 +112,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsOptionWithEscapedBrackets() {
+  public void getsOptionWithEscapedBrackets() {
     final String PATT = "%replace(%logger [%thread]){'\\d{14,16}', '\\{foo\\}'}";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -121,7 +121,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsOptionIgnoresUnrelatedCloseBracket() {
+  public void getsOptionIgnoresUnrelatedCloseBracket() {
     final String PATT = "%replace(%logger [%thread]){'\\d{14,16}', '\\{foo\\}'} foo bar}";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -130,7 +130,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsOptionForMultipleConversionWords() {
+  public void getsOptionForMultipleConversionWords() {
     // (Issue #1)
     final String PATT = "%d{HH:MM} [%level] %logger{0} - %msg%n";
     List<PatternInfo> patts = PatternParser.parse(PATT);
@@ -141,7 +141,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsFormatModifierLeftPad() {
+  public void getsFormatModifierLeftPad() {
     final String PATT = "%20logger";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -150,7 +150,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsFormatModifierRightPad() {
+  public void getsFormatModifierRightPad() {
     final String PATT = "%-20logger";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -159,7 +159,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsFormatModifierTruncated() {
+  public void getsFormatModifierTruncated() {
     final String PATT = "%.20logger";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -168,7 +168,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsFormatModifierLeftPadTruncated() {
+  public void getsFormatModifierLeftPadTruncated() {
     final String PATT = "%20.30logger";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -177,7 +177,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsFormatModifierRightPadTruncated() {
+  public void getsFormatModifierRightPadTruncated() {
     final String PATT = "%-20.30logger";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -186,7 +186,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsFormatModifierTruncatedEndIfExceedLen() {
+  public void getsFormatModifierTruncatedEndIfExceedLen() {
     final String PATT = "%.-30logger";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(1, results.size());
@@ -195,7 +195,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsChildren() {
+  public void getsChildren() {
     final String PATT = "%replace(%logger [%thread]){'\\d{14,16}', 'XXXX'} - %msg%n";
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(3, results.size());
@@ -205,7 +205,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testGetsNoChildren() {
+  public void getsNoChildren() {
     final String PATT = "%replace(%logger [%thread]){'\\d{14,16}', 'XXXX'} - %msg%n";
     List<PatternInfo> results = PatternParser.parse(PATT);
     PatternInfo inf = results.get(0);
@@ -216,7 +216,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testEscapesRegexCharsInPatternLiterals() {
+  public void escapesRegexCharsInPatternLiterals() {
     final String PATT = "{%d} %replace(%logger [%thread]){'\\d{14,16}', 'XXXX'} [%level] - %msg%n";
     final String ESC = PatternParser.ESC_SEQ;
     final String PATT2 = ESC + "{%d" + ESC + "} %replace(%logger [%thread]){'\\d{14,16}', 'XXXX'} " + ESC + "[%level" + ESC + "] - %msg%n";
@@ -225,13 +225,13 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testDoesNotEscapePatternThatHasNoRegexCharsInLiterals() {
+  public void doesNotEscapePatternThatHasNoRegexCharsInLiterals() {
     final String PATT = "%d %replace(%logger [%thread]){'\\d{14,16}', 'XXXX'} %level - %msg%n";
     assertEquals(PATT, PatternParser.escapeRegexCharsInPattern(PATT));
   }
 
   @Test
-  public void testUnescapesEscapedRegexCharsInPatternLiterals() {
+  public void unescapesEscapedRegexCharsInPatternLiterals() {
     final String PATT = "{%d} %replace(%logger [%thread]){'\\d{14,16}', 'XXXX'} [%level] - %msg%n";
     final String ESC = PatternParser.ESC_SEQ;
     final String PATT2 = ESC + "{%d" + ESC + "} %replace(%logger [%thread]){'\\d{14,16}', 'XXXX'} " + ESC + "[%level" + ESC + "] - %msg%n";
@@ -240,7 +240,7 @@ public class PatternParserTest {
   }
 
   @Test
-  public void testDoesNotUnescapePatternThatHasNoEscapes() {
+  public void doesNotUnescapePatternThatHasNoEscapes() {
     final String PATT = "{%d} %replace(%logger [%thread]){'\\d{14,16}', 'XXXX'} [%level] - %msg%n";
     assertEquals(PATT, PatternParser.unescapeRegexCharsInPattern(PATT));
   }

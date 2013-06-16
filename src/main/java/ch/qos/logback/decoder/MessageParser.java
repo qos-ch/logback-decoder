@@ -12,19 +12,15 @@
  */
 package ch.qos.logback.decoder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.pattern.parser2.PatternInfo;
 
 /**
  * A {@code MessageParser} parses a message field from a string and populates the
- * appropriate field in a given logging event  
+ * appropriate field in a given logging event
  */
 public class MessageParser implements FieldCapturer<LoggingEvent> {
-  public static final Logger logger = LoggerFactory.getLogger(LevelParser.class);
-  
+
   @Override
   public void captureField(LoggingEvent event, String fieldAsStr, PatternInfo info) {
     event.setMessage(fieldAsStr);

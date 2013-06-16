@@ -21,20 +21,23 @@ import ch.qos.logback.core.pattern.parser2.PatternInfo;
 
 /**
  * A {@code LevelParser} parses a log-level field from a string and populates the
- * appropriate field in a given logging event  
+ * appropriate field in a given logging event
  */
 public class LevelParser implements FieldCapturer<LoggingEvent> {
-  public static final Logger logger = LoggerFactory.getLogger(LevelParser.class);
-  
+
+  private Logger logger() {
+    return LoggerFactory.getLogger(LevelParser.class);
+  }
+
   @Override
   public void captureField(LoggingEvent event, String fieldAsStr, PatternInfo info) {
-    
+
     Level level = Level.toLevel(fieldAsStr, Level.OFF);
     if (level == Level.OFF) {
-      logger.warn("Unexpected log level=\"{}\". Assuming DEBUG", fieldAsStr);
+      logger().warn("Unexpected log level=\"{}\". Assuming DEBUG", fieldAsStr);
       level = Level.DEBUG;
     }
-    
+
     event.setLevel(level);
   }
 

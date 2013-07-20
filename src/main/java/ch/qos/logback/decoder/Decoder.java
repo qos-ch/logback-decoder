@@ -141,6 +141,8 @@ public abstract class Decoder {
     new HashMap<String, FieldCapturer<LoggingEvent>>() {{
       put(PatternNames.DATE, new DateParser());
       put(PatternNames.LEVEL, new LevelParser());
+      put(PatternNames.LOGGER_NAME, new LoggerNameParser());
       put(PatternNames.MESSAGE, new MessageParser());
+      put(PatternNames.THREAD_NAME, new ThreadNameParser());
     }};
 }

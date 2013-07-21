@@ -18,7 +18,6 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.pattern.parser2.DatePatternInfo;
 import ch.qos.logback.core.pattern.parser2.PatternInfo;
 
@@ -26,14 +25,14 @@ import ch.qos.logback.core.pattern.parser2.PatternInfo;
  * A {@code DateParser} parses a date field from a string and populates the
  * appropriate field in a given logging event
  */
-public class DateParser implements FieldCapturer<LoggingEvent> {
+public class DateParser implements FieldCapturer<IStaticLoggingEvent> {
 
   private Logger logger() {
     return LoggerFactory.getLogger(DateParser.class);
   }
 
   @Override
-  public void captureField(LoggingEvent event, String fieldAsStr, PatternInfo info) {
+  public void captureField(IStaticLoggingEvent event, String fieldAsStr, PatternInfo info) {
 
     if (info instanceof DatePatternInfo) {
       DatePatternInfo dpi = (DatePatternInfo)info;

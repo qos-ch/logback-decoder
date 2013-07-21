@@ -15,14 +15,14 @@ package ch.qos.logback.decoder;
 import ch.qos.logback.core.pattern.parser2.PatternInfo;
 
 /**
- * A {@code LoggerNameParser} parses a logger-name field (%logger) from a string
+ * A {@code ClassOfCallerParser} parses a classname-of-caller field (%class) from a string
  * and populates the appropriate field in a given logging event
  */
-public class LoggerNameParser implements FieldCapturer<IStaticLoggingEvent> {
+public class ClassOfCallerParser implements FieldCapturer<IStaticLoggingEvent> {
 
   @Override
   public void captureField(IStaticLoggingEvent event, String fieldAsStr, PatternInfo info) {
-    event.setLoggerName(fieldAsStr.trim());
+    event.setClassNameOfCaller(fieldAsStr.trim());
   }
 
 }

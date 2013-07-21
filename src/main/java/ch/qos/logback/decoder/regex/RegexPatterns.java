@@ -31,6 +31,7 @@ public abstract class RegexPatterns {
 
     public static final String IDENTIFIER_REGEX = "[$_a-zA-z0-9]+";
     public static final String FILENAME_REGEX = IDENTIFIER_REGEX + "\\.java";
+    public static final String QUALIFIED_NAME_REGEX = IDENTIFIER_REGEX + "(\\." + IDENTIFIER_REGEX + ")*";
 
     public static final String INTEGER_REGEX = "\\d+";
     public static final String STACKTRACE_REGEX = "(?s)(.+(?:Exception|Error)[^\\n]+(?:\\s++at\\s+[^\\n]+)++)(?:\\s*\\.{3}[^\\n]++)?\\s*";
@@ -41,13 +42,13 @@ public abstract class RegexPatterns {
   // ignore last character in CallerData.CALLER_DATA_NA, which is a new-line
   static final String CALLER_DATA_NA = CallerData.CALLER_DATA_NA.substring(0, CallerData.CALLER_DATA_NA.length() - 1);
 
-  public static final String CALLER_STACKTRACE_REGEX = "((?s)(?:"
-                      + Pattern.quote(CallerDataConverter.DEFAULT_CALLER_LINE_PREFIX)
-                      + "\\d+\\s+at(.*)))"
-                      + "|(?:"
-                      + Pattern.quote(CALLER_DATA_NA)
-                      + ")";
-  public static final String CLASS_OF_CALLER_REGEX = Common.IDENTIFIER_REGEX + "|" + Pattern.quote(CallerData.NA);
+  public static final String CALLER_STACKTRACE_ELEM_REGEX =
+        Pattern.quote(CallerDataConverter.DEFAULT_CALLER_LINE_PREFIX) + "\\d+\\s+at (.*)";
+
+  public static final String CALLER_STACKTRACE_REGEX = "((?s)(?:" + CALLER_STACKTRACE_ELEM_REGEX + "))"
+                      + "|(?:" + Pattern.quote(CALLER_DATA_NA) + ")";
+
+  public static final String CLASS_OF_CALLER_REGEX = Common.QUALIFIED_NAME_REGEX + "|" + Pattern.quote(CallerData.NA);
   public static final String CONTEXT_NAME_REGEX = Common.NON_WHITESPACE_REGEX;
   public static final String FILE_OF_CALLER_REGEX = Common.FILENAME_REGEX;
   public static final String LEVEL_REGEX = "OFF|WARN|ERROR|INFO|DEBUG|TRACE|ALL";

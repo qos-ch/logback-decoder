@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.pattern.parser2.PatternInfo;
 import ch.qos.logback.core.pattern.parser2.PatternParser;
 import ch.qos.logback.decoder.regex.PatternLayoutRegexUtil;
@@ -81,13 +80,13 @@ public abstract class Decoder {
    */
   public ILoggingEvent decode(String inputLine) {
 
-    LoggingEvent event = null;
+    IStaticLoggingEvent event = null;
     Matcher matcher = regexPattern.matcher(inputLine);
 
     logger.trace("regex: {}", regexPattern.toString());
 
     if (matcher.find() && matcher.groupCount() > 0) {
-      event = new LoggingEvent();
+      event = new StaticLoggingEvent();
 
       int patternIndex = 0;
       Map<String, String> groupMap = matcher.namedGroups();
@@ -97,7 +96,7 @@ public abstract class Decoder {
 
         logger.debug("{} = {}", pattName, field);
 
-        FieldCapturer<LoggingEvent> parser = DECODER_MAP.get(pattName);
+        FieldCapturer<IStaticLoggingEvent> parser = DECODER_MAP.get(pattName);
         if (parser == null) {
           logger.warn("No decoder for [{}, {}]", pattName, field);
         } else {
@@ -137,8 +136,11 @@ public abstract class Decoder {
   }
 
   @SuppressWarnings("serial")
-  private static final Map<String, FieldCapturer<LoggingEvent>> DECODER_MAP =
-    new HashMap<String, FieldCapturer<LoggingEvent>>() {{
+  private static final Map<String, FieldCapturer<IStaticLoggingEvent>> DECODER_MAP =
+    new HashMap<String, FieldCapturer<IStaticLoggingEvent>>() {{
+      put(PatternNames.CALLER_STACKTRACE, new CallerStackTraceParser());
+      put(PatternNames.CLASS_OF_CALLER, new ClassOfCallerParser());
+      put(PatternNames.CONTEXT_NAME, new ContextNameParser());
       put(PatternNames.DATE, new DateParser());
       put(PatternNames.LEVEL, new LevelParser());
       put(PatternNames.LOGGER_NAME, new LoggerNameParser());

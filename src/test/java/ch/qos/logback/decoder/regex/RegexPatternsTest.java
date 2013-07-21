@@ -12,7 +12,12 @@
  */
 package ch.qos.logback.decoder.regex;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,10 +37,16 @@ public class RegexPatternsTest {
   private static final String CALLER_STACKTRACE1 =
       "Caller+0   at mainPackage.sub.sample.Bar.sampleMethodName(Bar.java:22)";
 
+  private static final List<String> CALLER_STACKTRACE2_ELEMENTS = Arrays.asList(
+      "mainPackage.sub.sample.Bar.sampleMethodName(Bar.java:22)",
+      "mainPackage.sub.sample.Bar.createLoggingRequest(Bar.java:17)",
+      "mainPackage.ConfigTester.main(ConfigTester.java:38)"
+      );
+
   private static final String CALLER_STACKTRACE2 =
-      "Caller+0   at mainPackage.sub.sample.Bar.sampleMethodName(Bar.java:22)\n" +
-      "Caller+1   at mainPackage.sub.sample.Bar.createLoggingRequest(Bar.java:17)\n" +
-      "Caller+2   at mainPackage.ConfigTester.main(ConfigTester.java:38)";
+    "Caller+0   at mainPackage.sub.sample.Bar.sampleMethodName(Bar.java:22)\n" +
+    "Caller+1   at mainPackage.sub.sample.Bar.createLoggingRequest(Bar.java:17)\n" +
+    "Caller+2   at mainPackage.ConfigTester.main(ConfigTester.java:38)\n";
 
   private static final String MSG_WITH_STACKTRACE = "I couldn't do it because of this exception\n" +
       "mainPackage.foo.bar.TestException: Houston we have a problem\n" +
@@ -114,76 +125,92 @@ public class RegexPatternsTest {
   // improved!
 
   @Test
-  public void dateRegexMatchesIsolatedInput() {
-    final String REGEX = RegexPatterns.Common.DATE_ISO8601_REGEX;
-
-    assertTrue("2006-10-20 14:06:49,812".matches(REGEX));
-    assertFalse("".matches(REGEX));
+  public void dateRegexMatchesISO8601() {
+    assertTrue("2006-10-20 14:06:49,812".matches(RegexPatterns.Common.DATE_ISO8601_REGEX));
   }
 
   @Test
-  public void dateRegexMatchesComplexInput() {
-    final String REGEX = RegexPatterns.Common.DATE_ISO8601_REGEX;
-    final String GROUP_NAME = PatternNames.DATE;
-    Pattern pattern = Pattern.compile(String.format("(?<%1$s>%2$s) <.*>: .*\\n", GROUP_NAME, REGEX));
-
+  public void dateRegexMatchesISO8601WithOtherText() {
+    Pattern pattern = Pattern.compile("(?<" + PatternNames.DATE + ">" + RegexPatterns.Common.DATE_ISO8601_REGEX + ") <.*>: .*\\n");
     Matcher m = pattern.matcher("2006-10-20 14:06:49,812 <FooBar.java:24>: hello world!\n");
     assertTrue(m.find());
-    assertTrue(m.groupCount() > 0);
-    assertEquals("2006-10-20 14:06:49,812", m.group(GROUP_NAME));
-
-    m = pattern.matcher(" <FooBar.java:24>: hello world!\n");
-    assertFalse(m.find());
+    assertEquals("2006-10-20 14:06:49,812", m.group(PatternNames.DATE));
   }
 
   @Test
-  public void lineOfCallerRegexMatchesIsolatedInput() {
-    final String REGEX = RegexPatterns.LINE_OF_CALLER_REGEX;
-
-    assertTrue("24".matches(REGEX));
-    assertTrue("1234567890".matches(REGEX));
-    assertTrue("?".matches(REGEX));
-    assertFalse("123?".matches(REGEX));
-    assertFalse("abc123".matches(REGEX));
-    assertFalse("abc".matches(REGEX));
-    assertFalse(" .!@#$%^&*()_+`".matches(REGEX));
-    assertFalse("".matches(REGEX));
+  public void lineOfCallerRegexMatchesNumbers() {
+    assertTrue("24".matches(RegexPatterns.LINE_OF_CALLER_REGEX));
+    assertTrue("1234567890".matches(RegexPatterns.LINE_OF_CALLER_REGEX));
   }
 
   @Test
-  public void lineOfCallerRegexMatchesComplexInput() {
-    final String REGEX = RegexPatterns.LINE_OF_CALLER_REGEX;
-    final String GROUP_NAME = PatternNames.LINE_OF_CALLER;
-    Pattern pattern = Pattern.compile(String.format("\\d{2}/\\d{2}/\\d{4} .*\\.java:(?<%1$s>%2$s) <.*>: .*\\n", GROUP_NAME, REGEX));
+  public void lineOfCallerRegexMatchesQuestionMark() {
+    assertTrue("?".matches(RegexPatterns.LINE_OF_CALLER_REGEX));
+  }
+
+  @Test
+  public void lineOfCallerRegexDoesNotMatchText() {
+    assertFalse("abc".matches(RegexPatterns.LINE_OF_CALLER_REGEX));
+  }
+
+  @Test
+  public void lineOfCallerRegexDoesNotMatchSymbols() {
+    assertFalse(" .!@#$%^&*()_+`".matches(RegexPatterns.LINE_OF_CALLER_REGEX));
+  }
+
+  @Test
+  public void lineOfCallerRegexMatchesNumbersWithOtherText() {
+    Pattern pattern = Pattern.compile("\\d{2}/\\d{2}/\\d{4} .*\\.java:(?<" + PatternNames.LINE_OF_CALLER + ">" + RegexPatterns.LINE_OF_CALLER_REGEX + ") <.*>: .*\\n");
 
     Matcher m = pattern.matcher("06/20/2012 FooBar.java:24 <TRACE>: hello world!\n");
     assertTrue(m.find());
-    assertTrue(m.groupCount() > 0);
-    assertEquals("24", m.group(GROUP_NAME).toString());
+    assertEquals("24", m.group(PatternNames.LINE_OF_CALLER).toString());
 
     m = pattern.matcher("06/20/2012 FooBar.java:1234567890 <TRACE>: hello world!\n");
     assertTrue(m.find());
-    assertTrue(m.groupCount() > 0);
-    assertEquals("1234567890", m.group(GROUP_NAME).toString());
+    assertEquals("1234567890", m.group(PatternNames.LINE_OF_CALLER).toString());
+  }
 
-    m = pattern.matcher("06/20/2012 FooBar.java:? <TRACE>: hello world!\n");
+  @Test
+  public void lineOfCallerRegexMatchesQuestionMarkWithOtherText() {
+    Pattern pattern = Pattern.compile("\\d{2}/\\d{2}/\\d{4} .*\\.java:(?<" + PatternNames.LINE_OF_CALLER + ">" + RegexPatterns.LINE_OF_CALLER_REGEX + ") <.*>: .*\\n");
+    Matcher m = pattern.matcher("06/20/2012 FooBar.java:? <TRACE>: hello world!\n");
     assertTrue(m.find());
-    assertTrue(m.groupCount() > 0);
-    assertEquals("?", m.group(GROUP_NAME).toString());
+    assertEquals("?", m.group(PatternNames.LINE_OF_CALLER).toString());
+  }
 
-    m = pattern.matcher("06/20/2012 FooBar.java:123? <TRACE>: hello world!\n");
+  @Test
+  public void lineOfCallerRegexDoesNotMatchNumberWithNonNumericSuffix() {
+    Pattern pattern = Pattern.compile("\\d{2}/\\d{2}/\\d{4} .*\\.java:(?<" + PatternNames.LINE_OF_CALLER + ">" + RegexPatterns.LINE_OF_CALLER_REGEX + ") <.*>: .*\\n");
+    Matcher m = pattern.matcher("06/20/2012 FooBar.java:123? <TRACE>: hello world!\n");
     assertFalse(m.find());
+  }
 
-    m = pattern.matcher("06/20/2012 FooBar.java:abc123 <TRACE>: hello world!\n");
+  @Test
+  public void lineOfCallerRegexDoesNotMatchNumberWithNonnumericPrefix() {
+    Pattern pattern = Pattern.compile("\\d{2}/\\d{2}/\\d{4} .*\\.java:(?<" + PatternNames.LINE_OF_CALLER + ">" + RegexPatterns.LINE_OF_CALLER_REGEX + ") <.*>: .*\\n");
+    Matcher m = pattern.matcher("06/20/2012 FooBar.java:abc123 <TRACE>: hello world!\n");
     assertFalse(m.find());
+  }
 
-    m = pattern.matcher("06/20/2012 FooBar.java:abc <TRACE>: hello world!\n");
+  @Test
+  public void lineOfCallerRegexDoesNotMatchAlphabet() {
+    Pattern pattern = Pattern.compile("\\d{2}/\\d{2}/\\d{4} .*\\.java:(?<" + PatternNames.LINE_OF_CALLER + ">" + RegexPatterns.LINE_OF_CALLER_REGEX + ") <.*>: .*\\n");
+    Matcher m = pattern.matcher("06/20/2012 FooBar.java:abc <TRACE>: hello world!\n");
     assertFalse(m.find());
+  }
 
-    m = pattern.matcher("06/20/2012 FooBar.java:.!@#$%^&*()_+` <TRACE>: hello world!\n");
+  @Test
+  public void lineOfCallerRegexDoesNotMatchSymbolsWithOtherText() {
+    Pattern pattern = Pattern.compile("\\d{2}/\\d{2}/\\d{4} .*\\.java:(?<" + PatternNames.LINE_OF_CALLER + ">" + RegexPatterns.LINE_OF_CALLER_REGEX + ") <.*>: .*\\n");
+    Matcher m = pattern.matcher("06/20/2012 FooBar.java:.!@#$%^&*()_+` <TRACE>: hello world!\n");
     assertFalse(m.find());
+  }
 
-    m = pattern.matcher("06/20/2012 FooBar.java: <TRACE>: hello world!\n");
+  @Test
+  public void lineOfCallerRegexDoesNotMatchBlank() {
+    Pattern pattern = Pattern.compile("\\d{2}/\\d{2}/\\d{4} .*\\.java:(?<" + PatternNames.LINE_OF_CALLER + ">" + RegexPatterns.LINE_OF_CALLER_REGEX + ") <.*>: .*\\n");
+    Matcher m = pattern.matcher("06/20/2012 FooBar.java: <TRACE>: hello world!\n");
     assertFalse(m.find());
   }
 
@@ -439,7 +466,7 @@ public class RegexPatternsTest {
 
     assertTrue("MyClassName".matches(REGEX));
     assertTrue("?".matches(REGEX));
-    assertFalse("a.b.c.d.MyClassName".matches(REGEX));
+    assertTrue("a.b.c.d.MyClassName".matches(REGEX)); // qualified class name
     assertFalse("MyClassName with spaces".matches(REGEX));
     assertFalse("MyClassName***".matches(REGEX));
     assertFalse("".matches(REGEX));
@@ -694,5 +721,18 @@ public class RegexPatternsTest {
 
     m = pattern.matcher("06/20/2012: <TRACE> hello world!\n");
     assertFalse(m.find());
+  }
+
+  @Test
+  public void callerDataElementRegexGetsIndividualElements() {
+    Pattern pattern = Pattern.compile(RegexPatterns.CALLER_STACKTRACE_ELEM_REGEX);
+    Matcher m = pattern.matcher("06/20/2012: <TRACE> hello world!\n"+ CALLER_STACKTRACE2 +"\n");
+
+    List<String> elems = new ArrayList<String>();
+    while (m.find()) {
+      elems.add(m.group(1));
+    }
+
+    assertThat(elems, is(CALLER_STACKTRACE2_ELEMENTS));
   }
 }

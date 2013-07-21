@@ -12,17 +12,16 @@
  */
 package ch.qos.logback.decoder;
 
-import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.pattern.parser2.PatternInfo;
 
 /**
  * A {@code ThreadNameParser} parses a thread-name field (%thread) from a string
  * and populates the appropriate field in a given logging event
  */
-public class ThreadNameParser implements FieldCapturer<LoggingEvent> {
+public class ThreadNameParser implements FieldCapturer<IStaticLoggingEvent> {
 
   @Override
-  public void captureField(LoggingEvent event, String fieldAsStr, PatternInfo info) {
+  public void captureField(IStaticLoggingEvent event, String fieldAsStr, PatternInfo info) {
     event.setThreadName(fieldAsStr.trim());
   }
 

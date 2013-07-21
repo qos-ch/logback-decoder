@@ -16,21 +16,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.pattern.parser2.PatternInfo;
 
 /**
  * A {@code LevelParser} parses a log-level field from a string and populates the
  * appropriate field in a given logging event
  */
-public class LevelParser implements FieldCapturer<LoggingEvent> {
+public class LevelParser implements FieldCapturer<IStaticLoggingEvent> {
 
   private Logger logger() {
     return LoggerFactory.getLogger(LevelParser.class);
   }
 
   @Override
-  public void captureField(LoggingEvent event, String fieldAsStr, PatternInfo info) {
+  public void captureField(IStaticLoggingEvent event, String fieldAsStr, PatternInfo info) {
 
     Level level = Level.toLevel(fieldAsStr, Level.OFF);
     if (level == Level.OFF) {

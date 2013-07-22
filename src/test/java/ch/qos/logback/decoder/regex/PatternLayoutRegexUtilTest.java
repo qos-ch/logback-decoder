@@ -56,8 +56,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void datePatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.DATE + ">" + RegexPatterns.Common.DATE_ISO8601_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.DATE, RegexPatterns.Common.DATE_ISO8601_REGEX);
     for (String p : Arrays.asList("%d", "%date")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -68,14 +67,12 @@ public class PatternLayoutRegexUtilTest {
   @Test
   public void datePatternToRegex2() {
     final String REGEX = "(?<" + PatternNames.DATE + ">\\d{2}:\\d{2}:\\d{2})";
-
     assertEquals(REGEX, regexifier.toRegex("%d{HH:mm:ss}"));
   }
 
   @Test
   public void lineOfCallerPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.LINE_OF_CALLER + ">" + RegexPatterns.LINE_OF_CALLER_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.LINE_OF_CALLER, RegexPatterns.LINE_OF_CALLER_REGEX);
     for (String p : Arrays.asList("%L", "%line")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -83,8 +80,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void fileOfCallerPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.FILE_OF_CALLER + ">" + RegexPatterns.FILE_OF_CALLER_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.FILE_OF_CALLER, RegexPatterns.FILE_OF_CALLER_REGEX);
     for (String p : Arrays.asList("%F", "%file")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -92,8 +88,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void relativeTimePatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.RELATIVE_TIME + ">" + RegexPatterns.RELATIVE_TIME_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.RELATIVE_TIME, RegexPatterns.RELATIVE_TIME_REGEX);
     for (String p : Arrays.asList("%r", "%relative")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -101,8 +96,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void levelPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.LEVEL + ">" + RegexPatterns.LEVEL_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.LEVEL, RegexPatterns.LEVEL_REGEX);
     for (String p : Arrays.asList("%le", "%level", "%p")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -110,8 +104,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void threadPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.THREAD_NAME + ">" + RegexPatterns.THREAD_NAME_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.THREAD_NAME, RegexPatterns.THREAD_NAME_REGEX);
     for (String p : Arrays.asList("%t", "%thread")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -119,8 +112,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void loggerPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.LOGGER_NAME + ">" + RegexPatterns.LOGGER_NAME_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.LOGGER_NAME, RegexPatterns.LOGGER_NAME_REGEX);
     for (String p : Arrays.asList("%lo", "%logger", "%c")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -130,8 +122,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void messagePatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.MESSAGE + ">" + RegexPatterns.MESSAGE_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.MESSAGE, RegexPatterns.MESSAGE_REGEX);
     for (String p : Arrays.asList("%msg", "%message", "%m")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -139,8 +130,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void classOfCallerPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.CLASS_OF_CALLER + ">" + RegexPatterns.CLASS_OF_CALLER_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.CLASS_OF_CALLER, RegexPatterns.CLASS_OF_CALLER_REGEX);
     for (String p : Arrays.asList("%C", "%class")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -150,8 +140,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void methodOfCallerPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.METHOD_OF_CALLER + ">" + RegexPatterns.METHOD_OF_CALLER_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.METHOD_OF_CALLER, RegexPatterns.METHOD_OF_CALLER_REGEX);
     for (String p : Arrays.asList("%M", "%method")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -159,8 +148,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void mDCPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.MDC + ">" + RegexPatterns.MDC_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.MDC, RegexPatterns.MDC_REGEX);
     for (String p : Arrays.asList("%X", "%mdc")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -168,8 +156,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void throwableProxyPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.EXCEPTION + ">" + RegexPatterns.EXCEPTION_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.EXCEPTION, RegexPatterns.EXCEPTION_REGEX);
     for (String p : Arrays.asList("%ex", "%exception", "%throwable")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -177,8 +164,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void extendedExceptionPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.EXT_EXCEPTION + ">" + RegexPatterns.EXCEPTION_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.EXT_EXCEPTION, RegexPatterns.EXCEPTION_REGEX);
     for (String p : Arrays.asList("%xEx", "%xException", "%xThrowable")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -186,8 +172,7 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void rootExceptionPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.ROOT_EXCEPTION + ">" + RegexPatterns.EXCEPTION_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.ROOT_EXCEPTION, RegexPatterns.EXCEPTION_REGEX);
     for (String p : Arrays.asList("%rEx", "%rootException")) {
       assertEquals(REGEX, regexifier.toRegex(p));
     }
@@ -195,32 +180,34 @@ public class PatternLayoutRegexUtilTest {
 
   @Test
   public void markerPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.MARKER + ">" + RegexPatterns.MARKER_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.MARKER, RegexPatterns.MARKER_REGEX);
     assertEquals(REGEX, regexifier.toRegex("%marker"));
   }
 
   @Test
   public void callerDataPatternToRegex() {
-    final String REGEX = "(?<" + PatternNames.CALLER_STACKTRACE + ">" + RegexPatterns.CALLER_STACKTRACE_REGEX + ")";
-
+    final String REGEX = regex(PatternNames.CALLER_STACKTRACE, RegexPatterns.CALLER_STACKTRACE_REGEX);
     assertEquals(REGEX, regexifier.toRegex("%caller"));
   }
 
   @Test
   public void mixedPatternsToRegex() {
-    final String REGEX = "(?<" + PatternNames.DATE + ">" + RegexPatterns.Common.DATE_ISO8601_REGEX + ")\\s+" +
-        "(?<" + PatternNames.FILE_OF_CALLER + ">" + RegexPatterns.FILE_OF_CALLER_REGEX + "):" +
-        "(?<" + PatternNames.LINE_OF_CALLER + ">" + RegexPatterns.LINE_OF_CALLER_REGEX + ")\\s+" +
-        "(?<" + PatternNames.DATE + ">" + RegexPatterns.Common.DATE_ISO8601_REGEX + ")";
+    final String REGEX = regex(PatternNames.DATE, RegexPatterns.Common.DATE_ISO8601_REGEX) + "\\s+" +
+        regex(PatternNames.FILE_OF_CALLER, RegexPatterns.FILE_OF_CALLER_REGEX) + ":" +
+        regex(PatternNames.LINE_OF_CALLER, RegexPatterns.LINE_OF_CALLER_REGEX) + "\\s+" +
+        regex(PatternNames.DATE, RegexPatterns.Common.DATE_ISO8601_REGEX);
 
     assertEquals(REGEX, regexifier.toRegex("%d %F:%L %d"));
   }
 
   @Test
   public void levelPatternToRegexWithRegexCharsInLiteral() {
-    final String REGEX = "\\[(?<" + PatternNames.LEVEL + ">" + RegexPatterns.LEVEL_REGEX + ")\\]\\s+\\.\\.\\.";
+    final String REGEX = "\\[" + regex(PatternNames.LEVEL, RegexPatterns.LEVEL_REGEX) + "\\]\\s+\\.\\.\\.";
     assertEquals(REGEX, regexifier.toRegex("[%le] ..."));
   }
 
+  private String regex(String group, String pattern) {
+    String p = "(?<" + group + ">" + pattern + ")";
+    return p.replaceAll("\\s+", "\\\\s+");
+  }
 }

@@ -33,7 +33,7 @@ public abstract class RegexPatterns {
     public static final String FILENAME_REGEX = IDENTIFIER_REGEX + "\\.java";
     public static final String QUALIFIED_NAME_REGEX = IDENTIFIER_REGEX + "(\\." + IDENTIFIER_REGEX + ")*";
 
-    public static final String INTEGER_REGEX = "\\d+";
+    public static final String INTEGER_REGEX = "-?\\d+";
     public static final String STACKTRACE_REGEX = "(?s)(.+(?:Exception|Error)[^\\n]+(?:\\s++at\\s+[^\\n]+)++)(?:\\s*\\.{3}[^\\n]++)?\\s*";
     public static final String DATE_ISO8601_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2},\\d{3}";
   }

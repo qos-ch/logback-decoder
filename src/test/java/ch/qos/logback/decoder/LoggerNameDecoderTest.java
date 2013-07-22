@@ -27,12 +27,26 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 public class LoggerNameDecoderTest extends DecoderTest {
 
   @Test
-  public void decodesLoggerName() {
-    final String INPUT = "2013-06-12 15:27:15.044 INFO  [main] KdbFxFeedhandlerApp: Running com.ubs.sprint.kdb.fx.feedhandler.server.KdbFxFeedhandlerApp from directory: /sbclocal/sprint/kdb-fx-feedhandler/0.0.23/bin/.\n";
-    final String PATT = "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{0}: %msg%n";
+  public void decodesNumericLoggerName() {
+    assertEquals("123", getLoggerName("123"));
+  }
+
+  @Test
+  public void decodesQualifiedClassNameAsLoggerName() {
+    assertEquals("com.example.foo", getLoggerName("com.example.foo"));
+  }
+
+  @Test
+  public void decodesSentenceAsLoggerName() {
+    assertEquals("logger name can be any non-empty string", getLoggerName("logger name can be any non-empty string"));
+  }
+
+  private String getLoggerName(String name) {
+    final String INPUT = "2013-06-12 15:27:15.044 INFO  <" + name + ">: foo bar message\n";
+    final String PATT = "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level <%logger{0}>: %msg%n";
     decoder.setLayoutPattern(PATT);
     ILoggingEvent event = decoder.decode(INPUT);
     assertNotNull(event);
-    assertEquals("KdbFxFeedhandlerApp", event.getLoggerName());
+    return event.getLoggerName();
   }
 }

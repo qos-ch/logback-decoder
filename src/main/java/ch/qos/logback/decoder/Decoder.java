@@ -145,6 +145,7 @@ public abstract class Decoder {
       put(PatternNames.LEVEL, new LevelParser());
       put(PatternNames.LINE_OF_CALLER, new LineOfCallerParser());
       put(PatternNames.LOGGER_NAME, new LoggerNameParser());
+      put(PatternNames.METHOD_OF_CALLER, new MethodOfCallerParser());
       put(PatternNames.MESSAGE, new MessageParser());
       put(PatternNames.THREAD_NAME, new ThreadNameParser());
     }};

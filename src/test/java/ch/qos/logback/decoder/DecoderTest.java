@@ -15,9 +15,11 @@ package ch.qos.logback.decoder;
 import org.junit.Before;
 
 /**
+ * Base test for verifying field decoders
+ *
  * @author Anthony Trinh
  */
-public class DecoderTest {
+public abstract class DecoderTest {
   protected class DecoderBase extends Decoder {}
   protected DecoderBase decoder;
 

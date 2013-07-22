@@ -30,7 +30,7 @@
   <name>logback-decoder</name>
   <description>The logback log file decoder</description>
 
-  <url>http://logback.qos.ch</url>
+  <url>http://github.com/qos-ch/logback-decoder</url>
 
   <organization>
     <name>QOS.ch</name>
@@ -160,6 +160,25 @@
         </configuration>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <archive>
+            <index>true</index>
+            <manifest>
+              <addClasspath>true</addClasspath>
+            </manifest>
+            <manifestEntries>
+              <mode>development</mode>
+              <url>${project.url}</url>
+              <Main-Class>ch.qos.logback.decoder.Main</Main-Class>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+
     </plugins>
 
   </build>
@@ -190,9 +209,6 @@
               </includes>
               <useDefaultExcludes>true</useDefaultExcludes>
               <useDefaultMapping>true</useDefaultMapping>
-              <properties>
-                <year>2013</year>
-              </properties>
               <headerDefinitions>
                 <headerDefinition>src/main/javadocHeaders.xml</headerDefinition>
               </headerDefinitions>
@@ -337,10 +353,5 @@
       </build>
     </profile>
   </profiles>
-
-  <reporting>
-    <plugins>
-    </plugins>
-  </reporting>
 
 </project>

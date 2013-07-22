@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 /**
- * Tests decoding %logger
+ * Tests decoding %method
  *
  * @author Anthony Trinh
  */

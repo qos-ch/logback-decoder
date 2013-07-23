@@ -85,7 +85,7 @@ public class BufferDecoder extends Decoder {
   private void readLayoutPattern(BufferedReader reader) throws IOException {
     String layout = getLayout(reader);
     if (layout == null) {
-      throw new UnknownLayoutPatternException("Layout pattern not found. Set layout pattern (e.g., from command line).");
+      throw new UnknownLayoutPatternException("layout pattern not specified");
     }
     setLayoutPattern(layout);
   }

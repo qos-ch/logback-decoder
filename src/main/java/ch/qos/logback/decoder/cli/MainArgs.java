@@ -153,7 +153,7 @@ public class MainArgs {
     Option infile = OptionBuilder
                               .withArgName("path")
                               .hasArg()
-                              .withDescription("Log file to parse")
+                              .withDescription("Log file to parse (default: stdin)")
                               .withLongOpt("input-file")
                               .create("f");
     opts.addOption(infile);

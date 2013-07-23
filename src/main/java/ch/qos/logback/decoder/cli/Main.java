@@ -12,9 +12,16 @@
  */
 package ch.qos.logback.decoder.cli;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.InputStreamReader;
 
-import ch.qos.logback.decoder.FileDecoder;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.decoder.BufferDecoder;
 
 /**
  * Provides application entry point
@@ -35,19 +42,38 @@ public final class Main {
     MainArgs mainArgs = null;
     try {
       mainArgs = new MainArgs(args);
-    } catch (RuntimeException e) {
-      System.err.println(e.getMessage());
-      return;
-    }
 
-    if (mainArgs.queriedHelp()) {
-      mainArgs.printUsage();
-    } else if (mainArgs.queriedVersion()) {
-      mainArgs.printVersion();
-    } else {
-      FileDecoder decoder = new FileDecoder();
-      decoder.setLayoutPattern(mainArgs.getLayoutPattern());
-      decoder.decode(new File(mainArgs.getInputFile()));
+      // handle help and version queries
+      if (mainArgs.queriedHelp()) {
+        mainArgs.printUsage();
+      } else if (mainArgs.queriedVersion()) {
+        mainArgs.printVersion();
+
+      // normal processing
+      } else {
+        if (mainArgs.isDebugMode()) {
+          enableVerboseLogging();
+        }
+
+        BufferDecoder decoder = new BufferDecoder();
+        decoder.setLayoutPattern(mainArgs.getLayoutPattern());
+
+        BufferedReader reader = null;
+        if (StringUtils.defaultString(mainArgs.getInputFile()).isEmpty()) {
+          reader = new BufferedReader(new InputStreamReader(System.in));
+        } else {
+          reader = new BufferedReader(new FileReader(mainArgs.getInputFile()));
+        }
+
+        decoder.decode(reader);
+      }
+    } catch (Exception e) {
+      System.err.println("error: " + e.getMessage());
     }
+  }
+
+  static private void enableVerboseLogging() {
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    root.setLevel(Level.TRACE);
   }
 }

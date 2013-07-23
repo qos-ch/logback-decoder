@@ -13,9 +13,6 @@
 package ch.qos.logback.decoder;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,85 +24,59 @@ import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 
 /**
- * A FileDecoder parses all log events from a log file
- * 
+ * A BufferDecoder parses all log events from a stream
+ *
  * @author Anthony Trinh
  */
-public class FileDecoder extends Decoder {
+public class BufferDecoder extends Decoder {
   private final Logger logger;
-  
+
   /**
-   * Constructs a FileDecoder
-   * 
+   * Constructs a BufferDecoder
+   *
    * @param path path to log file
    */
-  public FileDecoder() {
+  public BufferDecoder() {
     super();
-    logger = LoggerFactory.getLogger(FileDecoder.class);
+    logger = LoggerFactory.getLogger(BufferDecoder.class);
   }
-  
+
   /**
-   * Parses a file for log events
-   *  
-   * @param file the log file to decode
+   * Parses log events from a buffer
+   *
+   * @param reader buffer containing log strings, delimited by a new-line character
    * @return a list of log events
+   * @throws IOException an error occurred while reading buffer
    */
-  public List<ILoggingEvent> decode(File file) {
-    
+  public List<ILoggingEvent> decode(BufferedReader reader) throws IOException {
+
     List<ILoggingEvent> eventList = new LinkedList<ILoggingEvent>();
-    BufferedReader reader = null;
-    
-    try {
-      
-      // Open the file and attempt to read the pattern header from it.
-      // If the header is missing, the layout pattern must be preset
-      // (e.g., from command line) before this call or else an exception 
-      // occurs.
-      reader = new BufferedReader(new FileReader(file));
+
+    // If pattern not specified from command-line, read the pattern
+    // from the given buffer.
+    if (getLayoutPattern() == null) {
       readLayoutPattern(reader);
-      
-      // TODO: Devise a more accurate way to determine the event delimiter
-      // based on the given layout pattern. For now, assume log events are 
-      // delimited by a new line since that's pretty common. However, this
-      // won't always hold true.
-      int lineNum = 0;
-      while(reader.ready()) {
-        lineNum++;
-        String inputLine = reader.readLine();
-        ILoggingEvent event = super.decode(inputLine + "\n");
-        if (event == null) {
-          logger.warn("Line {}: Could not decode", lineNum);
-          logger.trace("Line {}: Could not decode: \"{}\"", lineNum, inputLine);
-        }
-        eventList.add(event);
-      }
-      
-    } catch (FileNotFoundException e) {
-      
-      logger.error(e.toString());
-      System.err.println("Can't process file: " + e.getLocalizedMessage());
-      
-    } catch (IOException e) {
-      
-      logger.error(e.toString());
-      System.err.println("Can't process file: " + e.getLocalizedMessage());
-      
-    } finally {
-      // always close file stream
-      try {
-        if (reader != null) reader.close();
-      } catch (Exception e) { /* ignore */ }
     }
-    
+
+    int lineNum = 0;
+    String inputLine;
+    while ((inputLine = reader.readLine()) != null) {
+      lineNum++;
+      ILoggingEvent event = super.decode(inputLine + "\n");
+      if (event == null) {
+        logger.trace("line {}: cannot decode: \"{}\"", lineNum, inputLine);
+      }
+      eventList.add(event);
+    }
+
     return eventList;
   }
-  
+
   /**
    * Reads the layout pattern header from the given reader
    * and sets this decoder's layout pattern accordingly.
-   * If the pattern is not found and a layout pattern was
-   * not already specified, this throws an exception.
-   * 
+   * If the pattern is not found, this throws an exception.
+   *
    * @param reader the reader from which to read the pattern
    * @throws IOException
    * @throws UnknownLayoutPatternException pattern not found
@@ -113,32 +84,32 @@ public class FileDecoder extends Decoder {
    */
   private void readLayoutPattern(BufferedReader reader) throws IOException {
     String layout = getLayout(reader);
-    if ( (layout == null) && (getLayoutPattern() == null) ) {
+    if (layout == null) {
       throw new UnknownLayoutPatternException("Layout pattern not found. Set layout pattern (e.g., from command line).");
     }
     setLayoutPattern(layout);
   }
-  
+
   /**
    * Attempts to read the layout pattern from the given reader.
    * If the pattern is found in the first line read, the reader is
    * advanced to the next line. Otherwise, the reader is reset to
    * the first line so that it can be processed as a logging event.
-   * 
+   *
    * @param reader reader of the log file
    * @return the layout pattern if found; otherwise {@code null}
    * @throws IOException
    */
   static private String getLayout(BufferedReader reader) throws IOException {
-    
+
     String layout = null;
     final int READ_AHEAD_LIMIT = 1024; // max length of pattern line
-    
+
     // mark the current position so we can reset later if we don't
     // find the pattern header
     reader.mark(READ_AHEAD_LIMIT);
     String line = reader.readLine();
-    
+
     if (line.startsWith(PatternLayout.HEADER_PREFIX)) {
       layout = line.substring(PatternLayout.HEADER_PREFIX.length());
     } else {

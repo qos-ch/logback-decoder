@@ -37,6 +37,7 @@ public class MainArgs {
   private String layoutPattern;
   private String inputFile;
   private boolean verbose;
+  private boolean debugMode;
   private Properties props;
   private Options options;
   private boolean queriedHelp;
@@ -68,6 +69,13 @@ public class MainArgs {
    * @return the layout pattern
    */
   public String getLayoutPattern() { return layoutPattern; }
+
+  /**
+   * Determines whether debug mode was set
+   *
+   * @return true if in debug mode; false otherwise
+   */
+  public boolean isDebugMode() { return debugMode; }
 
   /**
    * Gets the verbose flag
@@ -133,6 +141,15 @@ public class MainArgs {
         .create("v");
     opts.addOption(version);
 
+
+    Option layoutPattern = OptionBuilder
+                              .withArgName("pattern")
+                              .hasArg()
+                              .withDescription("Layout pattern to use (overrides file's pattern)")
+                              .withLongOpt("layout")
+                              .create("p");
+    opts.addOption(layoutPattern);
+
     Option infile = OptionBuilder
                               .withArgName("path")
                               .hasArg()
@@ -176,6 +193,9 @@ public class MainArgs {
 
       queriedHelp = line.hasOption("help");
       queriedVersion = line.hasOption("version");
+      verbose = Boolean.valueOf(line.hasOption("verbose"));
+      debugMode = Boolean.valueOf(line.hasOption("debug"));
+      layoutPattern = line.getOptionValue("layout");
 
       if (line.hasOption("input-file")) {
         inputFile = line.getOptionValue("input-file");
@@ -183,14 +203,6 @@ public class MainArgs {
 
       if (line.hasOption('D')) {
         props = line.getOptionProperties("D");
-      }
-
-      if (!queriedHelp && !queriedVersion) {
-        // Make input-file required. We can't set the required flag because
-        // it prevents the "help" and "version" flags from working.
-        if (!line.hasOption("input-file")) {
-          throw new ParseException("--input-file parameter required");
-        }
       }
     } catch (ParseException exp) {
       logger.error("Failed to parse command-line arguments: {}", exp);

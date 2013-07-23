@@ -8,7 +8,7 @@ Overview
 --------
 `logback-decoder` is a command-line tool for [log file analysis][1] of text output from the [`logback`][2] framework.
 
-The current version is **0.1.0**. This project is in *alpha* devellpment, and we're currently seeking volunteers! Please email the [development mailing list](http://logback.qos.ch/mailinglist.html) for more info.
+The current version is **0.1.0**. This project is in *alpha* development, and we're currently seeking volunteers! Please email the [development mailing list](http://logback.qos.ch/mailinglist.html) for more info.
 
 Download
 --------

@@ -16,7 +16,7 @@ Download
 
 Usage
 -----
-`logback-decoder` is normally invoked by `java -jar logback-decoder-0.1.0.jar`. For clarity, the following examples uses a wrapper script named `decode.sh`.
+`logback-decoder` is normally invoked by `java -jar logback-decoder-0.1.0.jar`. For clarity, the following examples use a wrapper script named `decode.sh`.
 
 #### show help
 ```bash

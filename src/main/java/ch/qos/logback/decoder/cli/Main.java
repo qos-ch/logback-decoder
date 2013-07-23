@@ -32,10 +32,22 @@ public final class Main {
    * @param args the command-line parameters
    */
   static public void main(String[] args) {
-    MainArgs mainArgs = new MainArgs(args);
-    FileDecoder decoder = new FileDecoder();
-    decoder.setLayoutPattern(mainArgs.getLayoutPattern());
-    decoder.decode(new File(mainArgs.getInputFile()));
-    System.exit(0);
+    MainArgs mainArgs = null;
+    try {
+      mainArgs = new MainArgs(args);
+    } catch (RuntimeException e) {
+      System.err.println(e.getMessage());
+      return;
+    }
+
+    if (mainArgs.queriedHelp()) {
+      mainArgs.printUsage();
+    } else if (mainArgs.queriedVersion()) {
+      mainArgs.printVersion();
+    } else {
+      FileDecoder decoder = new FileDecoder();
+      decoder.setLayoutPattern(mainArgs.getLayoutPattern());
+      decoder.decode(new File(mainArgs.getInputFile()));
+    }
   }
 }

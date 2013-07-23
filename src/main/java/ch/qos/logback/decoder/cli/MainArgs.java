@@ -39,6 +39,8 @@ public class MainArgs {
   private boolean verbose;
   private Properties props;
   private Options options;
+  private boolean queriedHelp;
+  private boolean queriedVersion;
 
   /**
    * Constructs a {@code MainArgs} with the given arguments
@@ -82,9 +84,23 @@ public class MainArgs {
   public Properties getProperties() { return props; }
 
   /**
+   * Determines whether help was requested
+   *
+   * @return true if help requested; false otherwise
+   */
+  public boolean queriedHelp() { return queriedHelp; }
+
+  /**
+   * Determines whether version info was requested
+   *
+   * @return true if version requested; false otherwise
+   */
+  public boolean queriedVersion() { return queriedVersion; }
+
+  /**
    * Prints the usage string
    */
-  private final void printUsage() {
+  public final void printUsage() {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp(APPNAME, options);
   }
@@ -92,7 +108,7 @@ public class MainArgs {
   /**
    * Prints the version string
    */
-  private final void printVersion() {
+  public final void printVersion() {
     System.out.println(VERSION_STRING);
   }
 
@@ -122,7 +138,6 @@ public class MainArgs {
                               .hasArg()
                               .withDescription("Log file to parse")
                               .withLongOpt("input-file")
-                              .isRequired(true)
                               .create("f");
     opts.addOption(infile);
 
@@ -149,24 +164,18 @@ public class MainArgs {
   }
 
   /**
-   * Parses the command-line arguments. If help or version info is requested
-   * this exits the process immediately after printing them. If a parsing
-   * error occurs (including missing args), this exits with an error code.
+   * Parses the command-line arguments
    *
    * @param args the arguments to evaluate
+   * @throws RuntimeException a parse error occurred
    */
-  public void parseArgs(String... args) {
+  private void parseArgs(String... args) throws RuntimeException {
     CommandLineParser parser = new GnuParser();
     try {
-      CommandLine line = parser.parse( options, args );
+      CommandLine line = parser.parse(options, args);
 
-      if (line.hasOption("help")) {
-        printUsage();
-        System.exit(0);
-      } else if (line.hasOption("version")) {
-        printVersion();
-        System.exit(0);
-      }
+      queriedHelp = line.hasOption("help");
+      queriedVersion = line.hasOption("version");
 
       if (line.hasOption("input-file")) {
         inputFile = line.getOptionValue("input-file");
@@ -176,10 +185,16 @@ public class MainArgs {
         props = line.getOptionProperties("D");
       }
 
+      if (!queriedHelp && !queriedVersion) {
+        // Make input-file required. We can't set the required flag because
+        // it prevents the "help" and "version" flags from working.
+        if (!line.hasOption("input-file")) {
+          throw new ParseException("--input-file parameter required");
+        }
+      }
     } catch (ParseException exp) {
       logger.error("Failed to parse command-line arguments: {}", exp);
-      System.err.println("Error: " + exp.getMessage());
-      System.exit(1);
+      throw new RuntimeException(exp.getMessage(), exp);
     }
   }
 }

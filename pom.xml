@@ -176,7 +176,14 @@
       </plugin>
 
     </plugins>
-
+	<extensions>
+	                <!-- Enabling the use of FTP -->
+	                <extension>
+	                        <groupId>org.kuali.maven.wagons</groupId>
+	                        <artifactId>maven-s3-wagon</artifactId>
+	                        <version>1.2.1</version>
+	                </extension>
+	 </extensions>
   </build>
 
   <profiles>
@@ -349,5 +356,16 @@
       </build>
     </profile>
   </profiles>
+  
+  <distributionManagement>
+        <snapshotRepository>
+                <id>repo.dashbase.io</id>
+                <url>s3://repo.dashbase.io/snapshot</url>
+        </snapshotRepository>
+        <repository>
+                <id>repo.dashbase.io</id>
+                <url>s3://repo.dashbase.io/snapshot</url>
+        </repository>
+  </distributionManagement>
 
 </project>

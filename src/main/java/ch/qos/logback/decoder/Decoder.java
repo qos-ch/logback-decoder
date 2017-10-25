@@ -52,7 +52,7 @@ public abstract class Decoder {
    */
   public void setLayoutPattern(String layoutPattern) {
     if (layoutPattern != null) {
-      String regex = new PatternLayoutRegexUtil().toRegex(layoutPattern);
+      String regex = new PatternLayoutRegexUtil().toRegex(layoutPattern) + "$";
       regexPattern = Pattern.compile(regex);
       patternInfo = PatternParser.parse(layoutPattern);
     } else {

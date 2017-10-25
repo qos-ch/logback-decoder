@@ -12,10 +12,12 @@
  */
 package ch.qos.logback.decoder;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.Test;
+
 
 /**
  * Tests decoding %message
@@ -31,6 +33,11 @@ public class MessageDecoderTest extends DecoderTest {
   @Test
   public void decodesSimpleMessage() {
     assertEquals("This is just a test", getMessage("This is just a test"));
+  }
+
+  @Test
+  public void testMultiline() {
+    assertEquals("This\nis\ntest.", getMessage("This\nis\ntest."));
   }
 
   private String getMessage(String message) {

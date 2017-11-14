@@ -14,6 +14,7 @@ package ch.qos.logback.decoder.regex;
 
 import java.io.InputStream;
 
+import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.pattern.DynamicConverter;
 import ch.qos.logback.decoder.PatternNames;
 
@@ -21,8 +22,22 @@ import ch.qos.logback.decoder.PatternNames;
  * Converts a MDC pattern into a regular expression
  */
 public class MDCRegexConverter extends DynamicConverter<InputStream> {
-  
+  private String key = null;
+
+  @Override
+  public void start() {
+    key = getFirstOption();
+    if (key != null && key.indexOf(":-") > 0) {
+      key = key.substring(0, key.indexOf(":-"));
+    }
+  }
+
+  @Override
   public String convert(InputStream le) {
-    return "(?<" + PatternNames.MDC + ">" + RegexPatterns.MDC_REGEX + ")";
+    if (key == null) {
+      return "(?<" + PatternNames.MDC + ">" + RegexPatterns.MDC_REGEX + ")";
+    } else {
+      return "(?<" + PatternNames.MDC_PREFIX + key + ">" + RegexPatterns.Common.NON_WHITESPACE_REGEX + ")";
+    }
   }
 }

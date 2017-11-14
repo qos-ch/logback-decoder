@@ -26,8 +26,9 @@ public abstract class RegexPatterns {
   abstract class Common {
     public static final String ANYTHING_REGEX = ".+?";
     public static final String NON_WHITESPACE_REGEX = "[\\S]+";
+    public static final String NON_WHITESPACE_OR_EMPTY_REGEX = "[\\S]*";
     public static final String ANYTHING_MULTILINE_REGEX = "(?s).+?";
-    public static final String CSV_EQUALITIES_REGEX = "([^,\\s=]+)=([^,\\s=]+)(?:,\\s*(?:[^,\\s=]+)=(?:[^,\\s=]+))*?";
+    public static final String CSV_EQUALITIES_REGEX = "(?:([^,\\s=]+)=([^,\\s=]+)(?:,\\s*(?:[^,\\s=]+)=(?:[^,\\s=]+))*?)?";
 
     public static final String IDENTIFIER_REGEX = "[$_a-zA-z0-9]+";
     public static final String FILENAME_REGEX = IDENTIFIER_REGEX + "\\.java";

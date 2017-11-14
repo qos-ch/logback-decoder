@@ -529,7 +529,7 @@ public class RegexPatternsTest {
     assertFalse("k0:v0, k1:v1, k2:v2".matches(REGEX));
     assertFalse("k:v".matches(REGEX));
     assertFalse("k0 with spaces=v0 with spaces, k1 with spaces=v1 with spaces, k2=v2".matches(REGEX));
-    assertFalse("".matches(REGEX));
+    assertTrue("".matches(REGEX));
   }
 
   @Ignore

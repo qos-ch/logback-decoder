@@ -110,12 +110,16 @@ public abstract class Decoder {
               logger.warn("Cannot parse {} in {}", kv, field);
             }
           }
-        } else if (pattName.startsWith(PatternNames.MDC_PREFIX) && !field.isEmpty()) {
-          String key = pattName.substring(PatternNames.MDC_PREFIX.length());
-          if (mdcProperties == null) {
-            mdcProperties = new HashMap<String, String>();
+        } else if (pattName.startsWith(PatternNames.MDC_PREFIX)) {
+          if (!field.isEmpty()) {
+            String key = pattName.substring(PatternNames.MDC_PREFIX.length());
+            if (mdcProperties == null) {
+              mdcProperties = new HashMap<String, String>();
+            }
+            mdcProperties.put(key, field);
+          } else {
+            logger.debug("empty field for {}", pattName);
           }
-          mdcProperties.put(key, field);
         } else {
           FieldCapturer<IStaticLoggingEvent> parser = DECODER_MAP.get(pattName);
           if (parser == null) {

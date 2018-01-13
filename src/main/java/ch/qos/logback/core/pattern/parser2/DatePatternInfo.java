@@ -12,24 +12,29 @@
  */
 package ch.qos.logback.core.pattern.parser2;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import ch.qos.logback.core.CoreConstants;
+
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Auxiliary pattern info for a date conversion-word (%d) -- specifically the date format.
  */
 public class DatePatternInfo extends PatternInfo {
-  private DateFormat dateFormat;
+  public static final DateTimeFormatter ISO8601_FORMATTER =
+      DateTimeFormatter.ofPattern(CoreConstants.ISO8601_PATTERN).withZone(ZoneOffset.UTC);
+
+  private DateTimeFormatter dateFormat;
 
   public DatePatternInfo() {
-    dateFormat = SimpleDateFormat.getDateInstance();
+    dateFormat = ISO8601_FORMATTER;
   }
 
   /**
    * Gets the date format
    * @return the date format
    */
-  public DateFormat getDateFormat() {
+  public DateTimeFormatter getDateFormat() {
     return dateFormat;
   }
 
@@ -37,7 +42,7 @@ public class DatePatternInfo extends PatternInfo {
    * Sets the date format
    * @param dateFormat desired date format
    */
-  public void setDateFormat(DateFormat dateFormat) {
+  public void setDateFormat(DateTimeFormatter dateFormat) {
     this.dateFormat = dateFormat;
   }
 }

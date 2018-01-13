@@ -12,26 +12,20 @@
  */
 package ch.qos.logback.core.pattern.parser2;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TimeZone;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.spi.ScanException;
 import ch.qos.logback.decoder.ParserUtil;
 import ch.qos.logback.decoder.PatternNames;
-
 import com.google.code.regexp.Matcher;
 import com.google.code.regexp.Pattern;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * Parses a layout pattern for its individual patterns and conversion specifiers
@@ -97,13 +91,13 @@ public class PatternParser {
     return LoggerFactory.getLogger(PatternParser.class);
   }
 
-  private static DateFormat parseDateFormat(String option) {
-    TimeZone tz = null;
-
+  private static DateTimeFormatter parseDateFormat(String option) {
     // default to ISO8601 if no conversion pattern given
     if (option == null || option.isEmpty() || option.equalsIgnoreCase(CoreConstants.ISO8601_STR)) {
-      option = CoreConstants.ISO8601_PATTERN;
+      return DatePatternInfo.ISO8601_FORMATTER;
     }
+
+    ZoneId tz = ZoneOffset.UTC;
 
     // Parse the last option in the conversion pattern as a time zone.
     // Make sure the comma is not escaped/quoted.
@@ -118,26 +112,21 @@ public class PatternParser {
       String tzStr = option.substring(idx + 1).trim();
       if (!tzStr.startsWith("SSS")) {
         option = option.substring(0, idx);
-        tz = TimeZone.getTimeZone(tzStr);
-        if (!tz.getID().equalsIgnoreCase(tzStr)) {
-          logger().warn("Time zone (\"{}\") defaulting to \"{}\".", tzStr, tz.getID());
+        tz = ZoneId.of(tzStr);
+        if (!tz.getId().equalsIgnoreCase(tzStr)) {
+          logger().warn("Time zone (\"{}\") defaulting to \"{}\".", tzStr, tz.getId());
         }
       }
     }
 
-    // strip quotes from date format because SimpleDateFormat doesn't understand them
+    // strip quotes from date format
     if (option.length() > 1 && option.startsWith("\"") && option.endsWith("\"")) {
       option = option.substring(1, option.length() - 1);
     }
 
-    DateFormat format = new SimpleDateFormat(option);
-    format.setLenient(true);
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(option).withZone(tz);
 
-    if (tz != null) {
-      format.setTimeZone(tz);
-    }
-
-    return format;
+    return formatter;
   }
 
   /**

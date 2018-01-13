@@ -12,17 +12,19 @@
  */
 package ch.qos.logback.decoder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.CoreConstants;
+import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.junit.Test;
-
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.CoreConstants;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests decoding %date
@@ -30,6 +32,11 @@ import ch.qos.logback.core.CoreConstants;
  * @author Anthony Trinh
  */
 public class DateDecoderTest extends DecoderTest {
+
+  @Test
+  public void testOnlyWithTime() throws Exception {
+    assertThatDateDecoded("", "HH:mm:ss", "12:34:56");
+  }
 
   @Test
   public void decodesDateISO8601Pattern() throws ParseException {
@@ -55,7 +62,7 @@ public class DateDecoderTest extends DecoderTest {
 
   @Test
   public void decodesDateWithSpecificDateFormat() throws ParseException {
-    final String FORMAT   = "HH:mm:ssa";
+    final String FORMAT   = "hh:mm:ssa";
     final String INPUT    = "10:15:40AM";
     assertThatDateDecoded("", FORMAT, INPUT);
   }
@@ -63,7 +70,7 @@ public class DateDecoderTest extends DecoderTest {
   @Test
   public void decodesDateWithSpecificDateFormatAndFullTimeZoneName() throws ParseException {
     final String TIMEZONE = "Australia/Perth";
-    final String FORMAT   = "\"yyyy-MM-dd HH:mm:ss,SSSa\"";
+    final String FORMAT   = "\"yyyy-MM-dd hh:mm:ss,SSSa\"";
     final String INPUT    = "2013-06-15 03:55:00,123PM";
     assertThatDateDecoded(TIMEZONE, FORMAT, INPUT);
   }
@@ -71,7 +78,7 @@ public class DateDecoderTest extends DecoderTest {
   @Test
   public void decodesDateWithSpecificDateFormatUTC() throws ParseException {
     final String TIMEZONE = "UTC";
-    final String FORMAT   = "\"yyyy-MM-dd HH:mm:ss,SSSa\"";
+    final String FORMAT   = "\"yyyy-MM-dd hh:mm:ss,SSSa\"";
     final String INPUT    = "2013-06-15 03:55:00,123PM";
     assertThatDateDecoded(TIMEZONE, FORMAT, INPUT);
   }
@@ -79,7 +86,7 @@ public class DateDecoderTest extends DecoderTest {
   @Test
   public void decodesDateWithSpecificDateFormatAndGeneralTimeZone() throws ParseException {
     final String TIMEZONE = "GMT-05:00";
-    final String FORMAT   = "yyyy-MM-dd HH:mm:ss.SSSa";
+    final String FORMAT   = "yyyy-MM-dd hh:mm:ss.SSSa";
     final String INPUT    = "2013-06-15 03:55:00.123PM";
     assertThatDateDecoded(TIMEZONE, FORMAT, INPUT);
   }
@@ -112,9 +119,19 @@ public class DateDecoderTest extends DecoderTest {
     } else {
       decoder.setLayoutPattern("%d %msg%n");
     }
+    if (timeZoneName.isEmpty()) {
+      sdf.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
+    }
+
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(sdf.parse(input));
+    if (cal.get(Calendar.YEAR) == 1970) {
+      LocalDate today = LocalDate.now(ZoneOffset.UTC);
+      cal.set(today.getYear(), today.getMonthValue() - 1, today.getDayOfMonth());
+    }
 
     ILoggingEvent event = decoder.decode(input + " Hello world!\n");
     assertNotNull(event);
-    assertEquals(sdf.parse(input).getTime(), event.getTimeStamp());
+    assertEquals(cal.toInstant().toEpochMilli(), event.getTimeStamp());
   }
 }

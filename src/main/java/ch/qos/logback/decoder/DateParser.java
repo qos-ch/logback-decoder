@@ -12,13 +12,11 @@
  */
 package ch.qos.logback.decoder;
 
-import java.text.ParseException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
-import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,18 +41,20 @@ public class DateParser implements FieldCapturer<IStaticLoggingEvent> {
       DatePatternInfo dpi = (DatePatternInfo)info;
       try {
         DateTimeFormatter dtf = dpi.getDateFormat();
+        ZoneId timeZone = dpi.getTimeZone();
+        String datePattern = dpi.getOption().toLowerCase();
 
         // If the date pattern only contains time, use the today's year/month/day when parsing the input string.
-        if (dtf != DatePatternInfo.ISO8601_FORMATTER
-            && !dpi.getOption().toLowerCase().contains("d")) {
-          ZoneId zoneId = dtf.getZone();
-          LocalDate today = LocalDate.now(zoneId == null ? ZoneOffset.UTC: zoneId);
+        if (dtf != DatePatternInfo.ISO8601_FORMATTER && !datePattern.contains("d")) {
+          LocalDate today = LocalDate.now(timeZone);
           dtf = new DateTimeFormatterBuilder().append(dtf)
               .parseDefaulting(ChronoField.YEAR, today.getYear())
               .parseDefaulting(ChronoField.MONTH_OF_YEAR, today.getMonthValue())
               .parseDefaulting(ChronoField.DAY_OF_MONTH, today.getDayOfMonth())
-              .toFormatter();
-          dtf = dtf.withZone(zoneId);
+              .toFormatter().withZone(timeZone);
+        } else if (dtf.getZone() == null && !datePattern.contains("z") && !datePattern.contains("x")) {
+          // if TimeZone is not specified in the pattern format, use the one provided.
+          dtf = dtf.withZone(timeZone);
         }
 
         ZonedDateTime date = ZonedDateTime.parse(fieldAsStr, dtf);

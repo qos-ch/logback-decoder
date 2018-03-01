@@ -18,8 +18,7 @@ import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -89,6 +88,63 @@ public class DateDecoderTest extends DecoderTest {
     final String FORMAT   = "yyyy-MM-dd hh:mm:ss.SSSa";
     final String INPUT    = "2013-06-15 03:55:00.123PM";
     assertThatDateDecoded(TIMEZONE, FORMAT, INPUT);
+  }
+
+  @Test
+  public void testTimezone() {
+    String dateString = "2018-02-28 12:00:00,000";
+    decoder.setLayoutPattern("%d");
+    LocalDateTime dateTime =
+        LocalDateTime.of(2018, 2, 28, 12, 0, 0, 0);
+
+    ILoggingEvent event = decoder.decode(dateString);
+    assertEquals(ZonedDateTime.of(dateTime, ZoneOffset.UTC).toInstant().toEpochMilli(), event.getTimeStamp());
+
+    ZoneId tz = ZoneOffset.ofHours(8);
+    event = decoder.decode(dateString, tz);
+    assertEquals(ZonedDateTime.of(dateTime, tz).toInstant().toEpochMilli(), event.getTimeStamp());
+
+    // verify that Daylight Saving Time is handled properly
+    String summerDateString = "2018-07-08 12:00:00,000";
+    LocalDateTime summerDateTime =
+        LocalDateTime.of(2018, 7, 8, 12, 0, 0, 0);
+
+    tz = ZoneId.of("America/Los_Angeles");
+    event = decoder.decode(dateString, tz);
+    assertEquals(ZonedDateTime.of(dateTime, ZoneOffset.ofHours(-8)).toInstant().toEpochMilli(), event.getTimeStamp());
+    event = decoder.decode(summerDateString, tz);
+    assertEquals(ZonedDateTime.of(summerDateTime, ZoneOffset.ofHours(-7)).toInstant().toEpochMilli(), event.getTimeStamp());
+
+    tz = ZoneId.of("PST", ZoneId.SHORT_IDS);
+    event = decoder.decode(dateString, tz);
+    assertEquals(ZonedDateTime.of(dateTime, ZoneOffset.ofHours(-8)).toInstant().toEpochMilli(), event.getTimeStamp());
+    event = decoder.decode(summerDateString, tz);
+    assertEquals(ZonedDateTime.of(summerDateTime, ZoneOffset.ofHours(-7)).toInstant().toEpochMilli(), event.getTimeStamp());
+
+    // if timezone is specified in the pattern, then honor it.
+    decoder.setLayoutPattern("%d{\"" + CoreConstants.ISO8601_PATTERN + "\", Asia/Tokyo}");
+    ZoneId jst = ZoneId.of("JST", ZoneId.SHORT_IDS);
+    event = decoder.decode(dateString);
+    assertEquals(ZonedDateTime.of(dateTime, jst).toInstant().toEpochMilli(), event.getTimeStamp());
+    event = decoder.decode(dateString, tz);
+    assertEquals(ZonedDateTime.of(dateTime, jst).toInstant().toEpochMilli(), event.getTimeStamp());
+
+    decoder.setLayoutPattern("%d{\"" + CoreConstants.ISO8601_PATTERN + "\", JST}");
+    event = decoder.decode(dateString);
+    assertEquals(ZonedDateTime.of(dateTime, jst).toInstant().toEpochMilli(), event.getTimeStamp());
+    event = decoder.decode(dateString, tz);
+    assertEquals(ZonedDateTime.of(dateTime, jst).toInstant().toEpochMilli(), event.getTimeStamp());
+
+    // if timezone is provided in the timestamp, honor it.
+    String dateStringWithTZ = "2018-02-28T12:00:00.000-0700";
+    decoder.setLayoutPattern("%d{\"yyyy-MM-dd'T'HH:mm:ss.SSSZ\"}");
+    event = decoder.decode(dateStringWithTZ);
+    assertEquals(ZonedDateTime.of(dateTime, ZoneOffset.ofHours(-7)).toInstant().toEpochMilli(), event.getTimeStamp());
+
+    dateStringWithTZ = "2018-02-28 12:00:00.000 JST";
+    decoder.setLayoutPattern("%d{\"yyyy-MM-dd HH:mm:ss.SSS z\"}");
+    event = decoder.decode(dateStringWithTZ);
+    assertEquals(ZonedDateTime.of(dateTime, ZoneOffset.ofHours(9)).toInstant().toEpochMilli(), event.getTimeStamp());
   }
 
   private void assertThatDateDecoded(String timeZoneName, String format, String input) throws ParseException {

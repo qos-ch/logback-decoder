@@ -12,11 +12,14 @@
  */
 package ch.qos.logback.decoder;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ch.qos.logback.core.pattern.parser2.DatePatternInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +82,10 @@ public abstract class Decoder {
    * if line cannot be decoded
    */
   public ILoggingEvent decode(String inputLine) {
+    return decode(inputLine, ZoneOffset.UTC);
+  }
 
+  public ILoggingEvent decode(String inputLine, ZoneId timeZone) {
     StaticLoggingEvent event = null;
     Matcher matcher = regexPattern.matcher(inputLine);
     Map<String, String> mdcProperties = null;
@@ -125,7 +131,7 @@ public abstract class Decoder {
           if (parser == null) {
             logger.warn("No decoder for [{}, {}]", pattName, field);
           } else {
-            parser.captureField(event, field, getPatternInfo(patternIndex, pattName));
+            parser.captureField(event, field, getPatternInfo(patternIndex, pattName, timeZone));
           }
         }
 
@@ -147,7 +153,7 @@ public abstract class Decoder {
    * @param fieldName the name of the sub-pattern
    * @return the pattern info or {@code null} if not found
    */
-  private PatternInfo getPatternInfo(int patternIndex, String fieldName) {
+  private PatternInfo getPatternInfo(int patternIndex, String fieldName, ZoneId timeZone) {
     PatternInfo inf = patternInfo.get(patternIndex);
     if (inf != null) {
 
@@ -161,6 +167,10 @@ public abstract class Decoder {
               new Object[] { patternIndex, fieldName, infName });
 
         inf = null;
+      }
+
+      if (inf instanceof DatePatternInfo) {
+        ((DatePatternInfo) inf).setTimeZone(timeZone);
       }
     }
     return inf;

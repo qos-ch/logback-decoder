@@ -97,7 +97,7 @@ public class PatternParser {
       return DatePatternInfo.ISO8601_FORMATTER;
     }
 
-    ZoneId tz = ZoneOffset.UTC;
+    ZoneId tz = null;
 
     // Parse the last option in the conversion pattern as a time zone.
     // Make sure the comma is not escaped/quoted.
@@ -112,7 +112,7 @@ public class PatternParser {
       String tzStr = option.substring(idx + 1).trim();
       if (!tzStr.startsWith("SSS")) {
         option = option.substring(0, idx);
-        tz = ZoneId.of(tzStr);
+        tz = ZoneId.of(tzStr, ZoneId.SHORT_IDS);
         if (!tz.getId().equalsIgnoreCase(tzStr)) {
           logger().warn("Time zone (\"{}\") defaulting to \"{}\".", tzStr, tz.getId());
         }
@@ -124,7 +124,10 @@ public class PatternParser {
       option = option.substring(1, option.length() - 1);
     }
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(option).withZone(tz);
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(option);
+    if (tz != null) {
+      formatter = formatter.withZone(tz);
+    }
 
     return formatter;
   }

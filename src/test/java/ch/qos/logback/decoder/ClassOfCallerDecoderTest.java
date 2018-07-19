@@ -12,11 +12,9 @@
  */
 package ch.qos.logback.decoder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests decoding %class
@@ -81,6 +79,7 @@ public class ClassOfCallerDecoderTest extends DecoderTest {
     decoder.setLayoutPattern(PATT);
     StaticLoggingEvent event = (StaticLoggingEvent)decoder.decode(INPUT);
     assertNotNull(event);
+    assertEquals(className, INPUT.substring(event.classNameOfCallerOffset.start, event.classNameOfCallerOffset.end));
     return event.getClassNameOfCaller();
   }
 }

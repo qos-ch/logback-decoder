@@ -18,10 +18,10 @@ import ch.qos.logback.core.pattern.parser2.PatternInfo;
  * A {@code LineOfCallerParser} parses a line-of-caller field (%line) from a string
  * and populates the appropriate field in a given logging event
  */
-public class LineOfCallerParser implements FieldCapturer<IStaticLoggingEvent> {
+public class LineOfCallerParser implements FieldCapturer<StaticLoggingEvent> {
 
   @Override
-  public void captureField(IStaticLoggingEvent event, String fieldAsStr, PatternInfo info) {
+  public void captureField(StaticLoggingEvent event, String fieldAsStr, Offset offset, PatternInfo info) {
     int lineNumber = 0;
     try {
       lineNumber = Integer.valueOf(fieldAsStr);

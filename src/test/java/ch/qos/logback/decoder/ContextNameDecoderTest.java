@@ -58,6 +58,7 @@ public class ContextNameDecoderTest extends DecoderTest {
     decoder.setLayoutPattern(PATT);
     StaticLoggingEvent event = (StaticLoggingEvent)decoder.decode(INPUT);
     assertNotNull(event);
+    assertEquals(name, INPUT.substring(event.contextNameOffset.start, event.contextNameOffset.end));
     return event.getContextName();
   }
 }

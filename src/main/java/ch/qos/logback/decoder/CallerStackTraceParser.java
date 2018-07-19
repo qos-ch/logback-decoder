@@ -12,22 +12,20 @@
  */
 package ch.qos.logback.decoder;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.google.code.regexp.Matcher;
-import com.google.code.regexp.Pattern;
-
 import ch.qos.logback.core.pattern.parser2.PatternInfo;
 import ch.qos.logback.decoder.regex.RegexPatterns;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A {@code CallerStackTraceParser} parses a caller-stacktrace field (%caller) from a string
  * and populates the appropriate field in a given logging event
  */
-public class CallerStackTraceParser implements FieldCapturer<IStaticLoggingEvent> {
+public class CallerStackTraceParser implements FieldCapturer<StaticLoggingEvent> {
   private static final Pattern PATTERN = Pattern.compile(RegexPatterns.CALLER_STACKTRACE_ELEM_REGEX);
   private static final Pattern PATTERN2 = Pattern.compile("(?<class>" + RegexPatterns.CLASS_OF_CALLER_REGEX + ")"
       + "(\\("
@@ -37,7 +35,7 @@ public class CallerStackTraceParser implements FieldCapturer<IStaticLoggingEvent
       );
 
   @Override
-  public void captureField(IStaticLoggingEvent event, String fieldAsStr, PatternInfo info) {
+  public void captureField(StaticLoggingEvent event, String fieldAsStr, Offset offset, PatternInfo info) {
 
     List<StackTraceElement> stackTrace = new ArrayList<StackTraceElement>();
     Matcher m = PATTERN.matcher(fieldAsStr);

@@ -18,12 +18,11 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.Ignore;
 import org.junit.Test;
-
-import com.google.code.regexp.Matcher;
-import com.google.code.regexp.Pattern;
 
 import ch.qos.logback.classic.spi.CallerData;
 import ch.qos.logback.decoder.PatternNames;

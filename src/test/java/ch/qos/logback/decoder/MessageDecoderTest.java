@@ -50,12 +50,20 @@ public class MessageDecoderTest extends DecoderTest {
     assertEquals("START handlePresence(PbxUserPresence{extension='1234', message='', status=3, pbxId='customerABC', pnRegistered=false, timestamp=0})", event.getMessage());
     assertEquals("123abc", event.getMDCPropertyMap().get("SID"));
     assertEquals("456xyz", event.getMDCPropertyMap().get("CID"));
+    Offset offset = event.mdcPropertyOffsets.get("SID");
+    assertEquals("123abc", input.substring(offset.start, offset.end));
+    offset = event.mdcPropertyOffsets.get("CID");
+    assertEquals("456xyz", input.substring(offset.start, offset.end));
 
     // pattern with default values
     decoder.setLayoutPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} SID:%X{SID:-123} CID:%X{CID:-456} - %msg%n");
     event = (StaticLoggingEvent)decoder.decode(input);
     assertEquals("123abc", event.getMDCPropertyMap().get("SID"));
     assertEquals("456xyz", event.getMDCPropertyMap().get("CID"));
+    offset = event.mdcPropertyOffsets.get("SID");
+    assertEquals("123abc", input.substring(offset.start, offset.end));
+    offset = event.mdcPropertyOffsets.get("CID");
+    assertEquals("456xyz", input.substring(offset.start, offset.end));
 
     // no value in MDC
     input = "21:22:07.629 [Incoming-11,shared=uc-transport] INFO o.a.v.x.e.w.server.XMPPWebsocket SID: CID: - > TO_IP /0.0.0.0:8204\n";
@@ -64,6 +72,7 @@ public class MessageDecoderTest extends DecoderTest {
     assertEquals(Level.INFO, event.getLevel());
     assertEquals("o.a.v.x.e.w.server.XMPPWebsocket", event.getLoggerName());
     assertTrue(event.getMDCPropertyMap().isEmpty());
+    assertTrue(event.mdcPropertyOffsets.isEmpty());
 
     // pattern without key
     decoder.setLayoutPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} ID:%X - %msg%n");
@@ -71,15 +80,25 @@ public class MessageDecoderTest extends DecoderTest {
     event = (StaticLoggingEvent)decoder.decode(input);
     assertEquals("123abc", event.getMDCPropertyMap().get("SID"));
     assertEquals("456xyz", event.getMDCPropertyMap().get("CID"));
+    offset = event.mdcPropertyOffsets.get("SID");
+    assertEquals("123abc", input.substring(offset.start, offset.end));
+    offset = event.mdcPropertyOffsets.get("CID");
+    assertEquals("456xyz", input.substring(offset.start, offset.end));
 
     input = "20:44:20.120 [JGroups-Executor-17] INFO c._.u.s.xmpp.server.XMPPConnection ID:SID=123abc, CID=456xyz - START handlePresence(PbxUserPresence{extension='1234', message='', status=3, pbxId='customerABC', pnRegistered=false, timestamp=0})\n";
     event = (StaticLoggingEvent)decoder.decode(input);
     assertEquals("123abc", event.getMDCPropertyMap().get("SID"));
     assertEquals("456xyz", event.getMDCPropertyMap().get("CID"));
+    offset = event.mdcPropertyOffsets.get("SID");
+    assertEquals("123abc", input.substring(offset.start, offset.end));
+    offset = event.mdcPropertyOffsets.get("CID");
+    assertEquals("456xyz", input.substring(offset.start, offset.end));
 
     input = "20:44:20.120 [JGroups-Executor-17] INFO c._.u.s.xmpp.server.XMPPConnection ID: - START handlePresence(PbxUserPresence{extension='1234', message='', status=3, pbxId='customerABC', pnRegistered=false, timestamp=0})\n";
     event = (StaticLoggingEvent)decoder.decode(input);
     assertTrue(event.getMDCPropertyMap().isEmpty());
+    assertTrue(event.mdcPropertyOffsets.isEmpty());
+
   }
 
   private String getMessage(String message) {
@@ -88,6 +107,7 @@ public class MessageDecoderTest extends DecoderTest {
     decoder.setLayoutPattern(PATT);
     StaticLoggingEvent event = (StaticLoggingEvent)decoder.decode(INPUT);
     assertNotNull(event);
+    assertEquals(message, INPUT.substring(event.messageOffset.start, event.messageOffset.end));
     return event.getMessage();
   }
 }

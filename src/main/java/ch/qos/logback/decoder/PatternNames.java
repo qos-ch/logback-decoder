@@ -72,7 +72,7 @@ public class PatternNames {
   public static final String FILE_OF_CALLER_1 = "F";
   
   public static final String MDC = "mdc";
-  public static final String MDC_PREFIX = "mdc.";
+  public static final String MDC_PREFIX = "MDCMDCMDC";
   public static final String MDC_1 = "X";
   
   public static final String EXCEPTION = "exception";

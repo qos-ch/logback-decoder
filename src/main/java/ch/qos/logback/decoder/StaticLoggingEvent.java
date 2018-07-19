@@ -12,7 +12,9 @@
  */
 package ch.qos.logback.decoder;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import ch.qos.logback.classic.spi.LoggingEvent;
 
@@ -20,7 +22,7 @@ import ch.qos.logback.classic.spi.LoggingEvent;
  * A special LoggingEvent that holds constant/static field values that
  * are normally calculated dynamically.
  */
-public class StaticLoggingEvent extends LoggingEvent implements IStaticLoggingEvent {
+public class StaticLoggingEvent extends LoggingEvent {
   private String _classNameOfCaller;
   private String _contextName;
   private String _fileNameOfCaller;
@@ -28,7 +30,14 @@ public class StaticLoggingEvent extends LoggingEvent implements IStaticLoggingEv
   private String _methodNameOfCaller;
   private List<StackTraceElement> _callerStackTrace;
 
-  @Override
+  public Offset threadNameOffset;
+  public Offset loggerNameOffset;
+  public Offset messageOffset;
+  public Offset classNameOfCallerOffset;
+  public Offset methodOfCallerOffset;
+  public Offset contextNameOffset;
+  public Map<String, Offset> mdcPropertyOffsets = Collections.emptyMap();
+
   public void setCallerStackData(List<StackTraceElement> stackTrace) {
     _callerStackTrace = stackTrace;
   }
@@ -40,27 +49,22 @@ public class StaticLoggingEvent extends LoggingEvent implements IStaticLoggingEv
         : _callerStackTrace.toArray(new StackTraceElement[0]);
   }
 
-  @Override
   public void setClassNameOfCaller(String className) {
     _classNameOfCaller = className;
   }
 
-  @Override
   public void setContextName(String contextName) {
     _contextName = contextName;
   }
 
-  @Override
   public void setFileNameOfCaller(String fileName) {
     _fileNameOfCaller = fileName;
   }
 
-  @Override
   public void setLineNumberOfCaller(int lineNumber) {
     _lineNumberOfCaller = lineNumber;
   }
 
-  @Override
   public void setMethodOfCaller(String methodName) {
     _methodNameOfCaller = methodName;
   }

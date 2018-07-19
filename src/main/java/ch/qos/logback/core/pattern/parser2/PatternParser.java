@@ -16,16 +16,15 @@ import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.spi.ScanException;
 import ch.qos.logback.decoder.ParserUtil;
 import ch.qos.logback.decoder.PatternNames;
-import com.google.code.regexp.Matcher;
-import com.google.code.regexp.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parses a layout pattern for its individual patterns and conversion specifiers

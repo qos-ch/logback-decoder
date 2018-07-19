@@ -18,11 +18,12 @@ import ch.qos.logback.core.pattern.parser2.PatternInfo;
  * A {@code MethodOfCallerParser} parses a method-of-caller field (%method) from a string
  * and populates the appropriate field in a given logging event
  */
-public class MethodOfCallerParser implements FieldCapturer<IStaticLoggingEvent> {
+public class MethodOfCallerParser implements FieldCapturer<StaticLoggingEvent> {
 
   @Override
-  public void captureField(IStaticLoggingEvent event, String fieldAsStr, PatternInfo info) {
+  public void captureField(StaticLoggingEvent event, String fieldAsStr, Offset offset, PatternInfo info) {
     event.setMethodOfCaller(fieldAsStr);
+    event.methodOfCallerOffset = offset;
   }
 
 }

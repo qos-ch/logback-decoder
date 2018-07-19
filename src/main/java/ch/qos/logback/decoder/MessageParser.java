@@ -18,11 +18,12 @@ import ch.qos.logback.core.pattern.parser2.PatternInfo;
  * A {@code MessageParser} parses a message field from a string and populates the
  * appropriate field in a given logging event
  */
-public class MessageParser implements FieldCapturer<IStaticLoggingEvent> {
+public class MessageParser implements FieldCapturer<StaticLoggingEvent> {
 
   @Override
-  public void captureField(IStaticLoggingEvent event, String fieldAsStr, PatternInfo info) {
+  public void captureField(StaticLoggingEvent event, String fieldAsStr, Offset offset, PatternInfo info) {
     event.setMessage(fieldAsStr);
+    event.messageOffset = offset;
   }
 
 }

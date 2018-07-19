@@ -22,14 +22,14 @@ import ch.qos.logback.core.pattern.parser2.PatternInfo;
  * A {@code LevelParser} parses a log-level field from a string and populates the
  * appropriate field in a given logging event
  */
-public class LevelParser implements FieldCapturer<IStaticLoggingEvent> {
+public class LevelParser implements FieldCapturer<StaticLoggingEvent> {
 
   private Logger logger() {
     return LoggerFactory.getLogger(LevelParser.class);
   }
 
   @Override
-  public void captureField(IStaticLoggingEvent event, String fieldAsStr, PatternInfo info) {
+  public void captureField(StaticLoggingEvent event, String fieldAsStr, Offset offset, PatternInfo info) {
 
     Level level = Level.toLevel(fieldAsStr, Level.OFF);
     if (level == Level.OFF) {

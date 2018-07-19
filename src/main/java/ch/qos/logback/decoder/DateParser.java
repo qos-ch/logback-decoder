@@ -28,14 +28,14 @@ import ch.qos.logback.core.pattern.parser2.PatternInfo;
  * A {@code DateParser} parses a date field from a string and populates the
  * appropriate field in a given logging event
  */
-public class DateParser implements FieldCapturer<IStaticLoggingEvent> {
+public class DateParser implements FieldCapturer<StaticLoggingEvent> {
 
   private Logger logger() {
     return LoggerFactory.getLogger(DateParser.class);
   }
 
   @Override
-  public void captureField(IStaticLoggingEvent event, String fieldAsStr, PatternInfo info) {
+  public void captureField(StaticLoggingEvent event, String fieldAsStr, Offset offset, PatternInfo info) {
 
     if (info instanceof DatePatternInfo) {
       DatePatternInfo dpi = (DatePatternInfo)info;
@@ -60,10 +60,10 @@ public class DateParser implements FieldCapturer<IStaticLoggingEvent> {
         ZonedDateTime date = ZonedDateTime.parse(fieldAsStr, dtf);
         event.setTimeStamp(date.toInstant().toEpochMilli());
       } catch (DateTimeParseException e) {
-        logger().error(e.toString());
+        logger().error("Failed to parse a date", e);
       }
     } else {
-      logger().debug("expected DatePatternInfo, actual {}", info.getClass().getName());
+      logger().error("expected DatePatternInfo, actual {}", info);
     }
   }
 }

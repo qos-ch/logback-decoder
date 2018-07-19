@@ -18,11 +18,12 @@ import ch.qos.logback.core.pattern.parser2.PatternInfo;
  * A {@code LoggerNameParser} parses a logger-name field (%logger) from a string
  * and populates the appropriate field in a given logging event
  */
-public class LoggerNameParser implements FieldCapturer<IStaticLoggingEvent> {
+public class LoggerNameParser implements FieldCapturer<StaticLoggingEvent> {
 
   @Override
-  public void captureField(IStaticLoggingEvent event, String fieldAsStr, PatternInfo info) {
+  public void captureField(StaticLoggingEvent event, String fieldAsStr, Offset offset, PatternInfo info) {
     event.setLoggerName(fieldAsStr.trim());
+    event.loggerNameOffset = offset;
   }
 
 }

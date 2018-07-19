@@ -45,8 +45,9 @@ public class LoggerNameDecoderTest extends DecoderTest {
     final String INPUT = "2013-06-12 15:27:15.044 INFO  <" + name + ">: foo bar message\n";
     final String PATT = "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level <%logger{0}>: %msg%n";
     decoder.setLayoutPattern(PATT);
-    ILoggingEvent event = decoder.decode(INPUT);
+    StaticLoggingEvent event = (StaticLoggingEvent) decoder.decode(INPUT);
     assertNotNull(event);
+    assertEquals(name, INPUT.substring(event.loggerNameOffset.start, event.loggerNameOffset.end));
     return event.getLoggerName();
   }
 }

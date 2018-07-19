@@ -31,6 +31,6 @@ public interface FieldCapturer<E> {
    * pattern, including format and conversion modifiers, that 
    * can be used to parse {@code fieldAsStr}
    */
-  void captureField(E event, String fieldAsStr, PatternInfo info);
+  void captureField(E event, String fieldAsStr, Offset offset, PatternInfo info);
 
 }

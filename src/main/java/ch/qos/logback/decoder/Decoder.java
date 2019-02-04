@@ -12,21 +12,22 @@
  */
 package ch.qos.logback.decoder;
 
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import ch.qos.logback.core.pattern.parser2.DatePatternInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.pattern.parser2.DatePatternInfo;
 import ch.qos.logback.core.pattern.parser2.PatternInfo;
 import ch.qos.logback.core.pattern.parser2.PatternParser;
 import ch.qos.logback.decoder.regex.PatternLayoutRegexUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A {@code Decoder} parses information from a log string and produces an
@@ -41,6 +42,7 @@ public abstract class Decoder {
   private List<String> namedGroups;
   private String layoutPattern;
   private List<PatternInfo> patternInfo;
+  private Map<String, String> mdcKeyMap;
 
   /**
    * Constructs a {@code Decoder}
@@ -56,7 +58,8 @@ public abstract class Decoder {
    */
   public void setLayoutPattern(String layoutPattern) {
     if (layoutPattern != null) {
-      String regex = new PatternLayoutRegexUtil().toRegex(layoutPattern) + "$";
+      PatternLayoutRegexUtil util = new PatternLayoutRegexUtil();
+      String regex = util.toRegex(layoutPattern) + "$";
       regexPattern = Pattern.compile(regex);
       namedGroups = new ArrayList<>();
       Matcher matcher = NAMED_GROUP.matcher(regex);
@@ -64,6 +67,7 @@ public abstract class Decoder {
         namedGroups.add(matcher.group(1));
       }
       patternInfo = PatternParser.parse(layoutPattern);
+      mdcKeyMap = util.getProperties();
     } else {
       regexPattern = null;
       patternInfo = null;
@@ -127,6 +131,9 @@ public abstract class Decoder {
         } else if (pattName.startsWith(PatternNames.MDC_PREFIX)) {
           if (!field.isEmpty()) {
             String key = pattName.substring(PatternNames.MDC_PREFIX.length());
+            if (mdcKeyMap.containsKey(key)) {
+              key = mdcKeyMap.get(key);
+            }
             mdcProperties.put(key, field);
             mdcPropertyOffsets.put(key, offset);
           } else {

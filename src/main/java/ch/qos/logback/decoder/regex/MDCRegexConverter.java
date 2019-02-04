@@ -12,16 +12,19 @@
  */
 package ch.qos.logback.decoder.regex;
 
-import java.io.InputStream;
-
-import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.pattern.DynamicConverter;
 import ch.qos.logback.decoder.PatternNames;
+import org.apache.commons.lang3.RandomStringUtils;
+
+import java.io.InputStream;
+import java.util.regex.Pattern;
 
 /**
  * Converts a MDC pattern into a regular expression
  */
 public class MDCRegexConverter extends DynamicConverter<InputStream> {
+  private static final Pattern NON_ALNUM = Pattern.compile("[^a-zA-Z0-9]");
+
   private String key = null;
 
   @Override
@@ -29,6 +32,16 @@ public class MDCRegexConverter extends DynamicConverter<InputStream> {
     key = getFirstOption();
     if (key != null && key.indexOf(":-") > 0) {
       key = key.substring(0, key.indexOf(":-"));
+    }
+
+    // if key contains non alnum char, use random generated key instead.
+    if (key != null && NON_ALNUM.matcher(key).find()) {
+      String newKey;
+      do {
+        newKey = "KEY" + RandomStringUtils.randomAlphanumeric(5);
+      } while (getContext().getProperty(newKey) != null);
+      getContext().putProperty(newKey, key);
+      key = newKey;
     }
   }
 

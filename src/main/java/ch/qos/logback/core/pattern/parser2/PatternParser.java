@@ -162,15 +162,19 @@ public class PatternParser {
       int nextPos        = minX(group.end(), m.start(OPTION));
       CapturedText opt   = getEnclosedText(layoutPattern, nextPos, '{', '}', true);
       int end            = minX(opt.end(), m.end());
+      String name = m.group(NAME);
+      if (name == null) {
+        throw new IllegalArgumentException("Unknown pattern name at " + start + " in the pattern: " + layoutPattern);
+      }
 
-      boolean isDate = PatternNames.getFullName(m.group(NAME)).equals("date");
+      boolean isDate = "date".equals(PatternNames.getFullName(name));
       PatternInfo inf = isDate ? new DatePatternInfo() : new PatternInfo();
 
       inf.setOriginal(m.group(0))
           .setStart(start)
           .setEnd(end)
           .setGroup(group.value())
-          .setName(m.group(NAME))
+          .setName(name)
           .setOption(opt.value())
           .setFormatModifier(m.group(FORMAT));
 

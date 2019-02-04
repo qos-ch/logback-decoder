@@ -99,6 +99,17 @@ public class MessageDecoderTest extends DecoderTest {
     assertTrue(event.getMDCPropertyMap().isEmpty());
     assertTrue(event.mdcPropertyOffsets.isEmpty());
 
+    // key contains dash '_'
+    decoder.setLayoutPattern("%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{request_id}] - %msg%n");
+    input = "2018-02-04 12:00:00.000 [123xyz] - test test test\n";
+    event = (StaticLoggingEvent)decoder.decode(input);
+    assertEquals("123xyz", event.getMDCPropertyMap().get("request_id"));
+
+    // key contains dash '-'
+    decoder.setLayoutPattern("%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{request-id}] - %msg%n");
+    input = "2018-02-04 12:00:00.000 [123xyz] - test test test\n";
+    event = (StaticLoggingEvent)decoder.decode(input);
+    assertEquals("123xyz", event.getMDCPropertyMap().get("request-id"));
   }
 
   private String getMessage(String message) {

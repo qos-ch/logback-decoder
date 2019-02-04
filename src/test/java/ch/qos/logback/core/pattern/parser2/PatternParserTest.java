@@ -244,4 +244,9 @@ public class PatternParserTest {
     final String PATT = "{%d} %replace(%logger [%thread]){'\\d{14,16}', 'XXXX'} [%level] - %msg%n";
     assertEquals(PATT, PatternParser.unescapeRegexCharsInPattern(PATT));
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testUnsupportedPatternName()  {
+    PatternParser.parse("%wEx");
+  }
 }

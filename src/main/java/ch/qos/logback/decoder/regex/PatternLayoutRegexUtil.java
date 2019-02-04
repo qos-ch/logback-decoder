@@ -12,13 +12,13 @@
  */
 package ch.qos.logback.decoder.regex;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ch.qos.logback.core.ContextBase;
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.pattern.PatternLayoutBase;
 import ch.qos.logback.core.pattern.parser2.PatternParser;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utility to convert a layout pattern into a regular expression
@@ -66,6 +66,10 @@ public class PatternLayoutRegexUtil {
     patt = patt.replaceAll("\\s+", "\\\\s+");
 
     return patt;
+  }
+
+  public Map<String, String> getProperties() {
+    return converter.getContext().getCopyOfPropertyMap();
   }
 }
 

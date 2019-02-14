@@ -123,6 +123,10 @@ public class PatternParser {
       option = option.substring(1, option.length() - 1);
     }
 
+    if (option.equalsIgnoreCase(CoreConstants.ISO8601_STR)) {
+      option = CoreConstants.ISO8601_PATTERN;
+    }
+
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(option);
     if (tz != null) {
       formatter = formatter.withZone(tz);

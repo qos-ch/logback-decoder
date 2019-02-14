@@ -135,6 +135,18 @@ public class DateDecoderTest extends DecoderTest {
     event = decoder.decode(dateString, tz);
     assertEquals(ZonedDateTime.of(dateTime, jst).toInstant().toEpochMilli(), event.getTimeStamp());
 
+    decoder.setLayoutPattern("%d{ISO8601, JST}");
+    event = decoder.decode(dateString);
+    assertEquals(ZonedDateTime.of(dateTime, jst).toInstant().toEpochMilli(), event.getTimeStamp());
+    event = decoder.decode(dateString, tz);
+    assertEquals(ZonedDateTime.of(dateTime, jst).toInstant().toEpochMilli(), event.getTimeStamp());
+
+    decoder.setLayoutPattern("%d{ISO8601,JST}");
+    event = decoder.decode(dateString);
+    assertEquals(ZonedDateTime.of(dateTime, jst).toInstant().toEpochMilli(), event.getTimeStamp());
+    event = decoder.decode(dateString, tz);
+    assertEquals(ZonedDateTime.of(dateTime, jst).toInstant().toEpochMilli(), event.getTimeStamp());
+
     // if timezone is provided in the timestamp, honor it.
     String dateStringWithTZ = "2018-02-28T12:00:00.000-0700";
     decoder.setLayoutPattern("%d{\"yyyy-MM-dd'T'HH:mm:ss.SSSZ\"}");

@@ -50,7 +50,7 @@ public class MDCRegexConverter extends DynamicConverter<InputStream> {
     if (key == null) {
       return "(?<" + PatternNames.MDC + ">" + RegexPatterns.MDC_REGEX + ")";
     } else {
-      return "(?<" + PatternNames.MDC_PREFIX + key + ">" + RegexPatterns.Common.NON_WHITESPACE_OR_EMPTY_REGEX + ")";
+      return "(?<" + PatternNames.MDC_PREFIX + key + ">" + RegexPatterns.Common.ANYTHING_OR_EMPTY_REGEX + ")";
     }
   }
 }

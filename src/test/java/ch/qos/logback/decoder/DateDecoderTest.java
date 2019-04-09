@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
@@ -191,15 +192,15 @@ public class DateDecoderTest extends DecoderTest {
       sdf.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
     }
 
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(sdf.parse(input));
-    if (cal.get(Calendar.YEAR) == 1970) {
+
+    ZonedDateTime date = sdf.parse(input).toInstant().atZone(ZoneOffset.UTC);
+    if (date.getYear() == 1970) {
       LocalDate today = LocalDate.now(ZoneOffset.UTC);
-      cal.set(today.getYear(), today.getMonthValue() - 1, today.getDayOfMonth());
+      date = date.withYear(today.getYear()).withMonth(today.getMonthValue()).withDayOfMonth(today.getDayOfMonth());
     }
 
     ILoggingEvent event = decoder.decode(input + " Hello world!\n");
     assertNotNull(event);
-    assertEquals(cal.toInstant().toEpochMilli(), event.getTimeStamp());
+    assertEquals(date.toInstant().toEpochMilli(), event.getTimeStamp());
   }
 }

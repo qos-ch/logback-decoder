@@ -110,6 +110,21 @@ public class MessageDecoderTest extends DecoderTest {
     input = "2018-02-04 12:00:00.000 [123xyz] - test test test\n";
     event = (StaticLoggingEvent)decoder.decode(input);
     assertEquals("123xyz", event.getMDCPropertyMap().get("request-id"));
+
+    // value contains space
+    input = "2018-02-04 12:00:00.000 [123 xyz] - test test test\n";
+    event = (StaticLoggingEvent)decoder.decode(input);
+    assertEquals("123 xyz", event.getMDCPropertyMap().get("request-id"));
+
+    // key-value pairs where value contains space
+    decoder.setLayoutPattern("%d{yyyy-MM-dd HH:mm:ss.SSS} [%X] - %msg%n");
+    input = "2018-02-04 12:00:00.000 [request-id=b3735b37e2bb48bb871937826fccbc21, src-addr=172.68.226.92 185.221.220.107, src-port=33146, dst-addr=192.168.134.77, dst-port=9124] - test test test\n";
+    event = (StaticLoggingEvent)decoder.decode(input);
+    assertEquals("b3735b37e2bb48bb871937826fccbc21", event.getMDCPropertyMap().get("request-id"));
+    assertEquals("172.68.226.92 185.221.220.107", event.getMDCPropertyMap().get("src-addr"));
+    assertEquals("33146", event.getMDCPropertyMap().get("src-port"));
+    assertEquals("192.168.134.77", event.getMDCPropertyMap().get("dst-addr"));
+    assertEquals("9124", event.getMDCPropertyMap().get("dst-port"));
   }
 
   private String getMessage(String message) {

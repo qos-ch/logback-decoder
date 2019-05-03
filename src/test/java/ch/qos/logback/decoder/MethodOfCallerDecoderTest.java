@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
  *
  * @author Anthony Trinh
  */
-public class MethodOfCallerDecoderTest extends DecoderTest {
+public class MethodOfCallerDecoderTest {
 
   @Test
   public void decodesSimpleMethodName() {
@@ -61,17 +61,17 @@ public class MethodOfCallerDecoderTest extends DecoderTest {
   }
 
   private void assertNoEventWhenMethodNameIs(String value) {
-    final String INPUT = "2013-06-12 15:27:15.044 INFO  [" + value + "]: foo bar message\n";
+    final String INPUT = "2013-06-12 15:27:15.044 INFO  [" + value + "]: foo bar message";
     final String PATT = "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%method]: %msg%n";
-    decoder.setLayoutPattern(PATT);
+    Decoder decoder = new Decoder(PATT);
     StaticLoggingEvent event = (StaticLoggingEvent)decoder.decode(INPUT);
     assertNull(event);
   }
 
   private String getMethodName(String methodName) {
-    final String INPUT = "2013-06-12 15:27:15.044 INFO  [" + methodName + "]: foo bar message\n";
+    final String INPUT = "2013-06-12 15:27:15.044 INFO  [" + methodName + "]: foo bar message";
     final String PATT = "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%method]: %msg%n";
-    decoder.setLayoutPattern(PATT);
+    Decoder decoder = new Decoder(PATT);
     StaticLoggingEvent event = (StaticLoggingEvent)decoder.decode(INPUT);
     assertNotNull(event);
     assertEquals(methodName, INPUT.substring(event.methodOfCallerOffset.start, event.methodOfCallerOffset.end));

@@ -21,8 +21,8 @@ import ch.qos.logback.core.pattern.parser2.PatternInfo;
 public class LoggerNameParser implements FieldCapturer<StaticLoggingEvent> {
 
   @Override
-  public void captureField(StaticLoggingEvent event, String fieldAsStr, Offset offset, PatternInfo info) {
-    event.setLoggerName(fieldAsStr.trim());
+  public void captureField(StaticLoggingEvent event, CharSequence fieldAsStr, Offset offset, PatternInfo info) {
+    event.setLoggerName(fieldAsStr.toString().trim());
     event.loggerNameOffset = offset;
   }
 

@@ -178,8 +178,7 @@ public class PatternNames {
    * @return the full name of the abbreviated pattern name
    */
   public static String getFullName(String abbrev) {
-    String fullName = FULLNAMES.get(abbrev);
-    return fullName != null ? fullName : abbrev;
+    return FULLNAMES.getOrDefault(abbrev, abbrev);
   }
   
   /**

@@ -13,23 +13,48 @@
 package ch.qos.logback.core.pattern.parser2;
 
 import ch.qos.logback.core.CoreConstants;
+import ch.qos.logback.decoder.ParserUtil;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Auxiliary pattern info for a date conversion-word (%d) -- specifically the date format.
  */
 public class DatePatternInfo extends PatternInfo {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DatePatternInfo.class);
+
   public static final DateTimeFormatter ISO8601_FORMATTER =
       DateTimeFormatter.ofPattern(CoreConstants.ISO8601_PATTERN);
 
-  private DateTimeFormatter dateFormat;
-  private ZoneId timeZone = ZoneOffset.UTC;
+  private final DateTimeFormatter dateFormat;
+  private final ZoneId defaultTimeZone;
+  private final boolean noDateInPattern;
 
-  public DatePatternInfo() {
-    dateFormat = ISO8601_FORMATTER;
+  private final Cache<LocalDate, DateTimeFormatter> dateTimeFormatterCache =
+      CacheBuilder.newBuilder().maximumSize(10).build();
+
+
+  public DatePatternInfo(String pattern, ZoneId defaultTimeZone) {
+    DateTimeFormatter dtf = parseDateFormat(pattern);
+
+    pattern = pattern.toLowerCase();
+    this.noDateInPattern = dtf != DatePatternInfo.ISO8601_FORMATTER && !pattern.contains("d") && !pattern.contains(CoreConstants.ISO8601_STR.toLowerCase());
+    if (dtf.getZone() == null  && !(pattern.contains("x") || pattern.contains("z"))) {
+      // if TimeZone is not specified in the pattern format, use the one provided.
+      dtf = dtf.withZone(defaultTimeZone);
+    }
+
+    this.dateFormat = dtf;
+    this.defaultTimeZone = defaultTimeZone;
   }
 
   /**
@@ -37,22 +62,67 @@ public class DatePatternInfo extends PatternInfo {
    * @return the date format
    */
   public DateTimeFormatter getDateFormat() {
+    // If the date pattern only contains time, use the today's year/month/day when parsing the input string.
+    if (noDateInPattern) {
+      LocalDate today = LocalDate.now(defaultTimeZone);
+      try {
+        return dateTimeFormatterCache.get(today, () ->
+          new DateTimeFormatterBuilder().append(dateFormat)
+              .parseDefaulting(ChronoField.YEAR_OF_ERA, today.getYear())
+              .parseDefaulting(ChronoField.MONTH_OF_YEAR, today.getMonthValue())
+              .parseDefaulting(ChronoField.DAY_OF_MONTH, today.getDayOfMonth())
+              .toFormatter().withZone(defaultTimeZone)
+        );
+      } catch (ExecutionException e) {
+        throw new IllegalArgumentException(e);
+      }
+    }
+
     return dateFormat;
   }
 
-  /**
-   * Sets the date format
-   * @param dateFormat desired date format
-   */
-  public void setDateFormat(DateTimeFormatter dateFormat) {
-    this.dateFormat = dateFormat;
-  }
+  private static DateTimeFormatter parseDateFormat(String option) {
+    // default to ISO8601 if no conversion pattern given
+    if (option == null || option.isEmpty() || option.equalsIgnoreCase(CoreConstants.ISO8601_STR)) {
+      return DatePatternInfo.ISO8601_FORMATTER;
+    }
 
-  public void setTimeZone(ZoneId timeZone) {
-    this.timeZone = timeZone;
-  }
+    ZoneId tz = null;
 
-  public ZoneId getTimeZone() {
-    return timeZone;
+    // Parse the last option in the conversion pattern as a time zone.
+    // Make sure the comma is not escaped/quoted.
+    int idx = option.lastIndexOf(",");
+    if ((idx > -1)
+        && (idx + 1 < option.length()
+        && !ParserUtil.isEscaped(option, idx)
+        && !ParserUtil.isQuoted(option, idx))) {
+
+      // make sure the string isn't the millisecond pattern, which
+      // can appear after a comma
+      String tzStr = option.substring(idx + 1).trim();
+      if (!tzStr.startsWith("SSS")) {
+        option = option.substring(0, idx);
+        tz = ZoneId.of(tzStr, ZoneId.SHORT_IDS);
+        if (!tz.getId().equalsIgnoreCase(tzStr)) {
+          LOGGER.warn("Time zone (\"{}\") defaulting to \"{}\".", tzStr, tz.getId());
+        }
+      }
+    }
+
+    // strip quotes from date format
+    if (option.length() > 1 && option.startsWith("\"") && option.endsWith("\"")) {
+      option = option.substring(1, option.length() - 1);
+    }
+
+    if (option.equalsIgnoreCase(CoreConstants.ISO8601_STR)) {
+      option = CoreConstants.ISO8601_PATTERN;
+    }
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(option);
+    if (tz != null) {
+      formatter = formatter.withZone(tz);
+    }
+
+    return formatter;
   }
 }

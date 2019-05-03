@@ -12,28 +12,27 @@
  */
 package ch.qos.logback.decoder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import org.junit.Test;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests decoding %caller
  *
  * @author Anthony Trinh
  */
-public class CallerStackTraceDecoderTest extends DecoderTest {
+public class CallerStackTraceDecoderTest {
 
   @Test
   public void decodesCallerStackTraceWithFileAndLine() {
     final String INPUT = "2013-06-12 15:27:15.044 INFO  [main] KdbFxFeedhandlerApp: Foo Bar\n"
         + "Caller+0   at mainPackage.sub.sample.Bar.sampleMethodName(Bar.java:22)\n"
-        + "Caller+1   at mainPackage.sub.sample.Bar.createLoggingRequest(Bar.java:17)\n";
+        + "Caller+1   at mainPackage.sub.sample.Bar.createLoggingRequest(Bar.java:17)";
 
     final String PATT = "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{0}: %msg%caller%n";
-    decoder.setLayoutPattern(PATT);
+    Decoder decoder = new Decoder(PATT);
     ILoggingEvent event = decoder.decode(INPUT);
     assertNotNull(event);
 
@@ -56,10 +55,10 @@ public class CallerStackTraceDecoderTest extends DecoderTest {
   public void decodesCallerStackTraceWithNoFileInfo() {
     final String INPUT = "2013-06-12 15:27:15.044 INFO  [main] KdbFxFeedhandlerApp: Foo Bar\n"
         + "Caller+0   at mainPackage.sub.sample.Bar.sampleMethodName\n"
-        + "Caller+1   at mainPackage.sub.sample.Bar.createLoggingRequest\n";
+        + "Caller+1   at mainPackage.sub.sample.Bar.createLoggingRequest";
 
     final String PATT = "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{0}: %msg%caller%n";
-    decoder.setLayoutPattern(PATT);
+    Decoder decoder = new Decoder(PATT);
     ILoggingEvent event = decoder.decode(INPUT);
     assertNotNull(event);
 

@@ -28,14 +28,14 @@ public abstract class RegexPatterns {
     public static final String ANYTHING_OR_EMPTY_REGEX = ".*?";
     public static final String NON_WHITESPACE_REGEX = "[\\S]+";
     public static final String ANYTHING_MULTILINE_REGEX = "(?s).+?";
-    public static final String CSV_EQUALITIES_REGEX = "(?:([^,\\s=]+)=([^,=]+)(?:,\\s*(?:[^,\\s=]+)=(?:[^,=]+))*?)?";
+    public static final String CSV_EQUALITIES_REGEX = "(?:(?:[^,\\s=]+)=(?:[^,=]+)(?:,\\s*(?:[^,\\s=]+)=(?:[^,=]+))*?)?";
 
     public static final String IDENTIFIER_REGEX = "[$_a-zA-z0-9]+";
     public static final String FILENAME_REGEX = IDENTIFIER_REGEX + "\\.java";
-    public static final String QUALIFIED_NAME_REGEX = IDENTIFIER_REGEX + "(\\." + IDENTIFIER_REGEX + ")*";
+    public static final String QUALIFIED_NAME_REGEX = IDENTIFIER_REGEX + "(?:\\." + IDENTIFIER_REGEX + ")*";
 
     public static final String INTEGER_REGEX = "-?\\d+";
-    public static final String STACKTRACE_REGEX = "(?s)(.+(?:Exception|Error)[^\\n]+(?:\\s++at\\s+[^\\n]+)++)(?:\\s*\\.{3}[^\\n]++)?\\s*";
+    public static final String STACKTRACE_REGEX = "(?s)(?:.+(?:Exception|Error)[^\\n]+(?:\\s++at\\s+[^\\n]+)++)(?:\\s*\\.{3}[^\\n]++)?\\s*";
     public static final String DATE_ISO8601_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2},\\d{3}";
   }
 
@@ -44,9 +44,12 @@ public abstract class RegexPatterns {
   static final String CALLER_DATA_NA = CallerData.CALLER_DATA_NA.substring(0, CallerData.CALLER_DATA_NA.length() - 1);
 
   public static final String CALLER_STACKTRACE_ELEM_REGEX =
-        Pattern.quote(CallerDataConverter.DEFAULT_CALLER_LINE_PREFIX) + "\\d+\\s+at (.*)";
+        Pattern.quote(CallerDataConverter.DEFAULT_CALLER_LINE_PREFIX) + "\\d+\\s+at (?:.*)";
 
-  public static final String CALLER_STACKTRACE_REGEX = "((?s)(?:" + CALLER_STACKTRACE_ELEM_REGEX + "))"
+  public static final String CALLER_STACKTRACE_ELEM_REGEX_CAPTURE_LINE =
+      Pattern.quote(CallerDataConverter.DEFAULT_CALLER_LINE_PREFIX) + "\\d+\\s+at (.*)";
+
+  public static final String CALLER_STACKTRACE_REGEX = "(?:(?s)(?:" + CALLER_STACKTRACE_ELEM_REGEX + "))"
                       + "|(?:" + Pattern.quote(CALLER_DATA_NA) + ")";
 
   public static final String CLASS_OF_CALLER_REGEX = Common.QUALIFIED_NAME_REGEX + "|" + Pattern.quote(CallerData.NA);

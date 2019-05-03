@@ -12,16 +12,15 @@
  */
 package ch.qos.logback.decoder.cli;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.decoder.Decoder;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.decoder.BufferDecoder;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.InputStreamReader;
 
 /**
  * Provides application entry point
@@ -55,8 +54,7 @@ public final class Main {
           enableVerboseLogging();
         }
 
-        BufferDecoder decoder = new BufferDecoder();
-        decoder.setLayoutPattern(mainArgs.getLayoutPattern());
+        Decoder decoder = new Decoder(mainArgs.getLayoutPattern());
 
         BufferedReader reader = null;
         if (StringUtils.defaultString(mainArgs.getInputFile()).isEmpty()) {
@@ -65,7 +63,10 @@ public final class Main {
           reader = new BufferedReader(new FileReader(mainArgs.getInputFile()));
         }
 
-        decoder.decode(reader);
+        String l;
+        while ((l = reader.readLine()) != null) {
+          System.out.println(decoder.decode(l + "\n"));
+        }
       }
     } catch (Exception e) {
       System.err.println("error: " + e.getMessage());

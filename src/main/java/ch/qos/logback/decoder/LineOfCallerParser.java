@@ -21,10 +21,10 @@ import ch.qos.logback.core.pattern.parser2.PatternInfo;
 public class LineOfCallerParser implements FieldCapturer<StaticLoggingEvent> {
 
   @Override
-  public void captureField(StaticLoggingEvent event, String fieldAsStr, Offset offset, PatternInfo info) {
+  public void captureField(StaticLoggingEvent event, CharSequence fieldAsStr, Offset offset, PatternInfo info) {
     int lineNumber = 0;
     try {
-      lineNumber = Integer.valueOf(fieldAsStr);
+      lineNumber = Integer.parseInt(fieldAsStr, 0, fieldAsStr.length(), 10);
     } catch (NumberFormatException e) {
       // ignore
     }

@@ -724,7 +724,7 @@ public class RegexPatternsTest {
 
   @Test
   public void callerDataElementRegexGetsIndividualElements() {
-    Pattern pattern = Pattern.compile(RegexPatterns.CALLER_STACKTRACE_ELEM_REGEX);
+    Pattern pattern = Pattern.compile(RegexPatterns.CALLER_STACKTRACE_ELEM_REGEX_CAPTURE_LINE);
     Matcher m = pattern.matcher("06/20/2012: <TRACE> hello world!\n"+ CALLER_STACKTRACE2 +"\n");
 
     List<String> elems = new ArrayList<String>();

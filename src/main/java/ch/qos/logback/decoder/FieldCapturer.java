@@ -26,11 +26,11 @@ public interface FieldCapturer<E> {
    * Given fieldAsStr, sets the appropriate field of the event.
    *
    * @param event the event whose field should be captured
-   * @param fieldAsStr the field as a string
+   * @param text the entire input CharSequence
    * @param info sub-pattern information from original layout 
    * pattern, including format and conversion modifiers, that 
    * can be used to parse {@code fieldAsStr}
    */
-  void captureField(E event, String fieldAsStr, Offset offset, PatternInfo info);
+  void captureField(E event, CharSequence text, Offset offset, PatternInfo info);
 
 }

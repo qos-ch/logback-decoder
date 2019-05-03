@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  * and populates the appropriate field in a given logging event
  */
 public class CallerStackTraceParser implements FieldCapturer<StaticLoggingEvent> {
-  private static final Pattern PATTERN = Pattern.compile(RegexPatterns.CALLER_STACKTRACE_ELEM_REGEX);
+  private static final Pattern PATTERN = Pattern.compile(RegexPatterns.CALLER_STACKTRACE_ELEM_REGEX_CAPTURE_LINE);
   private static final Pattern PATTERN2 = Pattern.compile("(?<class>" + RegexPatterns.CLASS_OF_CALLER_REGEX + ")"
       + "(\\("
           + "(?<file>"+ RegexPatterns.FILE_OF_CALLER_REGEX + ")"
@@ -35,7 +35,7 @@ public class CallerStackTraceParser implements FieldCapturer<StaticLoggingEvent>
       );
 
   @Override
-  public void captureField(StaticLoggingEvent event, String fieldAsStr, Offset offset, PatternInfo info) {
+  public void captureField(StaticLoggingEvent event, CharSequence fieldAsStr, Offset offset, PatternInfo info) {
 
     List<StackTraceElement> stackTrace = new ArrayList<StackTraceElement>();
     Matcher m = PATTERN.matcher(fieldAsStr);

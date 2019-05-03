@@ -35,6 +35,6 @@ public class DateRegexConverter extends DynamicConverter<String> {
   }
 
   public String convert(String s) {
-    return "(?<" + PatternNames.DATE + ">" + new DatePatternToRegexUtil(datePattern).toRegex() + ")";
+    return "(?<" + PatternNames.DATE + ">" + new DatePatternToRegexUtil(datePattern).toRegex().replace("(\\+|-)", "(?:\\+|-)") + ")";
   }
 }

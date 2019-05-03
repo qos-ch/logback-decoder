@@ -12,17 +12,17 @@
  */
 package ch.qos.logback.core.pattern.parser2;
 
-import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.spi.ScanException;
 import ch.qos.logback.decoder.ParserUtil;
 import ch.qos.logback.decoder.PatternNames;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
  * @author Anthony Trinh
  */
 public class PatternParser {
-
   // group names
   private static final String FORMAT = "fmt";
   private static final String NAME = "name";
@@ -86,55 +85,6 @@ public class PatternParser {
     REGEX_PATTERN = Pattern.compile(REGEX);
   }
 
-  private static Logger logger(){
-    return LoggerFactory.getLogger(PatternParser.class);
-  }
-
-  private static DateTimeFormatter parseDateFormat(String option) {
-    // default to ISO8601 if no conversion pattern given
-    if (option == null || option.isEmpty() || option.equalsIgnoreCase(CoreConstants.ISO8601_STR)) {
-      return DatePatternInfo.ISO8601_FORMATTER;
-    }
-
-    ZoneId tz = null;
-
-    // Parse the last option in the conversion pattern as a time zone.
-    // Make sure the comma is not escaped/quoted.
-    int idx = option.lastIndexOf(",");
-    if ((idx > -1)
-        && (idx + 1 < option.length()
-        && !ParserUtil.isEscaped(option, idx)
-        && !ParserUtil.isQuoted(option, idx))) {
-
-      // make sure the string isn't the millisecond pattern, which
-      // can appear after a comma
-      String tzStr = option.substring(idx + 1).trim();
-      if (!tzStr.startsWith("SSS")) {
-        option = option.substring(0, idx);
-        tz = ZoneId.of(tzStr, ZoneId.SHORT_IDS);
-        if (!tz.getId().equalsIgnoreCase(tzStr)) {
-          logger().warn("Time zone (\"{}\") defaulting to \"{}\".", tzStr, tz.getId());
-        }
-      }
-    }
-
-    // strip quotes from date format
-    if (option.length() > 1 && option.startsWith("\"") && option.endsWith("\"")) {
-      option = option.substring(1, option.length() - 1);
-    }
-
-    if (option.equalsIgnoreCase(CoreConstants.ISO8601_STR)) {
-      option = CoreConstants.ISO8601_PATTERN;
-    }
-
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(option);
-    if (tz != null) {
-      formatter = formatter.withZone(tz);
-    }
-
-    return formatter;
-  }
-
   /**
    * Parses a layout pattern for its individual patterns and conversion
    * specifiers
@@ -145,8 +95,12 @@ public class PatternParser {
    *         no sub-patterns exist in the text
    */
   public static List<PatternInfo> parse(String layoutPattern) {
+    return parse(layoutPattern, ZoneOffset.UTC);
+  }
 
-    List<PatternInfo> list = new LinkedList<PatternInfo>();
+  public static List<PatternInfo> parse(String layoutPattern, ZoneId defaultTimeZone) {
+
+    List<PatternInfo> list = new ArrayList<>();
 
     Matcher m = REGEX_PATTERN.matcher(layoutPattern);
 
@@ -170,9 +124,13 @@ public class PatternParser {
       if (name == null) {
         throw new IllegalArgumentException("Unknown pattern name at " + start + " in the pattern: " + layoutPattern);
       }
-
-      boolean isDate = "date".equals(PatternNames.getFullName(name));
-      PatternInfo inf = isDate ? new DatePatternInfo() : new PatternInfo();
+      name = PatternNames.getFullName(name);
+      PatternInfo inf;
+      if (PatternNames.DATE.equals(name)){
+        inf = new DatePatternInfo(opt.value(), defaultTimeZone);
+      } else {
+        inf = new PatternInfo();
+      }
 
       inf.setOriginal(m.group(0))
           .setStart(start)
@@ -182,13 +140,9 @@ public class PatternParser {
           .setOption(opt.value())
           .setFormatModifier(m.group(FORMAT));
 
-      if (isDate) {
-        ((DatePatternInfo)inf).setDateFormat(parseDateFormat(opt.value()));
-      }
-
       // recursively set children
       if (!group.value().isEmpty()) {
-        inf.setChildren(parse(group.value()));
+        inf.setChildren(parse(group.value(), defaultTimeZone));
       }
 
       list.add(inf);

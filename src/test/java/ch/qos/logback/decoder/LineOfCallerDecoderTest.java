@@ -23,7 +23,7 @@ import org.junit.Test;
  *
  * @author Anthony Trinh
  */
-public class LineOfCallerDecoderTest extends DecoderTest {
+public class LineOfCallerDecoderTest {
 
   @Test
   public void decodesLineNumber() {
@@ -44,17 +44,17 @@ public class LineOfCallerDecoderTest extends DecoderTest {
 
   @Test
   public void noMatchWhenLineNumberMissing() {
-    final String INPUT = "2013-06-12 15:27:15.044 INFO  [main] KdbFxFeedhandlerApp foobar123: Running com.ubs.sprint.kdb.fx.feedhandler.server.KdbFxFeedhandlerApp from directory: /sbclocal/sprint/kdb-fx-feedhandler/0.0.23/bin/.\n";
+    final String INPUT = "2013-06-12 15:27:15.044 INFO  [main] KdbFxFeedhandlerApp foobar123: Running com.ubs.sprint.kdb.fx.feedhandler.server.KdbFxFeedhandlerApp from directory: /sbclocal/sprint/kdb-fx-feedhandler/0.0.23/bin/.";
     final String PATT = "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{0} %line: %msg%n";
-    decoder.setLayoutPattern(PATT);
+    Decoder decoder = new Decoder(PATT);
     StaticLoggingEvent event = (StaticLoggingEvent)decoder.decode(INPUT);
     assertNull(event);
   }
 
   private int getLineNumber(String line) {
-    final String INPUT = "2013-06-12 15:27:15.044 INFO  [main] KdbFxFeedhandlerApp " + line + ": Running com.ubs.sprint.kdb.fx.feedhandler.server.KdbFxFeedhandlerApp from directory: /sbclocal/sprint/kdb-fx-feedhandler/0.0.23/bin/.\n";
+    final String INPUT = "2013-06-12 15:27:15.044 INFO  [main] KdbFxFeedhandlerApp " + line + ": Running com.ubs.sprint.kdb.fx.feedhandler.server.KdbFxFeedhandlerApp from directory: /sbclocal/sprint/kdb-fx-feedhandler/0.0.23/bin/.";
     final String PATT = "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{0} %line: %msg%n";
-    decoder.setLayoutPattern(PATT);
+    Decoder decoder = new Decoder(PATT);
     StaticLoggingEvent event = (StaticLoggingEvent)decoder.decode(INPUT);
     assertNotNull(event);
     return event.getLineNumberOfCaller();

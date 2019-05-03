@@ -13,6 +13,7 @@
 package ch.qos.logback.decoder;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ public class StaticLoggingEvent extends LoggingEvent {
   private String _methodNameOfCaller;
   private List<StackTraceElement> _callerStackTrace;
 
+  public Offset levelOffset;
   public Offset threadNameOffset;
   public Offset loggerNameOffset;
   public Offset messageOffset;
@@ -87,5 +89,14 @@ public class StaticLoggingEvent extends LoggingEvent {
 
   public String getMethodOfCaller() {
     return _methodNameOfCaller;
+  }
+
+  public void putMDC(String key, String value, Offset offset) {
+    if (mdcPropertyOffsets.isEmpty()) {
+      mdcPropertyOffsets = new HashMap<>();
+      setMDCPropertyMap(new HashMap<>());
+    }
+    getMDCPropertyMap().put(key, value);
+    mdcPropertyOffsets.put(key, offset);
   }
 }

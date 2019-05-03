@@ -29,7 +29,7 @@ public class PatternParserTest {
     List<PatternInfo> results = PatternParser.parse(PATT);
     assertEquals(2, results.size());
     PatternInfo inf = results.get(0);
-    assertEquals("msg", inf.getName());
+    assertEquals("message", inf.getName());
   }
 
   @Test
@@ -134,7 +134,7 @@ public class PatternParserTest {
     // (Issue #1)
     final String PATT = "%d{HH:MM} [%level] %logger{0} - %msg%n";
     List<PatternInfo> patts = PatternParser.parse(PATT);
-    assertEquals("d", patts.get(0).getName());
+    assertEquals("date", patts.get(0).getName());
     assertEquals("HH:MM", patts.get(0).getOption());
     assertEquals("logger", patts.get(2).getName());
     assertEquals("0", patts.get(2).getOption());

@@ -21,8 +21,8 @@ import ch.qos.logback.core.pattern.parser2.PatternInfo;
 public class ThreadNameParser implements FieldCapturer<StaticLoggingEvent> {
 
   @Override
-  public void captureField(StaticLoggingEvent event, String fieldAsStr, Offset offset, PatternInfo info) {
-    event.setThreadName(fieldAsStr.trim());
+  public void captureField(StaticLoggingEvent event, CharSequence fieldAsStr, Offset offset, PatternInfo info) {
+    event.setThreadName(fieldAsStr.toString().trim());
     event.threadNameOffset = offset;
   }
 

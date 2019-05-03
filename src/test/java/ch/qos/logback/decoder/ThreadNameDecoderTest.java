@@ -24,7 +24,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
  *
  * @author Anthony Trinh
  */
-public class ThreadNameDecoderTest extends DecoderTest {
+public class ThreadNameDecoderTest {
   @Test
   public void decodesNumericThreadName() {
     assertEquals("123", getThreadName("123"));
@@ -46,9 +46,9 @@ public class ThreadNameDecoderTest extends DecoderTest {
   }
 
   private String getThreadName(String name) {
-    final String INPUT = "2013-06-12 15:27:15.044 INFO  <" + name + ">: foo bar message\n";
+    final String INPUT = "2013-06-12 15:27:15.044 INFO  <" + name + ">: foo bar message";
     final String PATT = "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level <%thread{0}>: %msg%n";
-    decoder.setLayoutPattern(PATT);
+    Decoder decoder = new Decoder(PATT);
     StaticLoggingEvent event = (StaticLoggingEvent) decoder.decode(INPUT);
     assertNotNull(event);
     assertEquals(name, INPUT.substring(event.threadNameOffset.start, event.threadNameOffset.end));

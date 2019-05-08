@@ -32,10 +32,17 @@ public class DateParser implements FieldCapturer<StaticLoggingEvent> {
     }
 
     DatePatternInfo dpi = (DatePatternInfo)info;
+    var cached = dpi.getCachedTimestamp(fieldAsStr);
+    if (cached != null) {
+      event.setTimeStamp(cached);
+      return;
+    }
     try {
       DateTimeFormatter dtf = dpi.getDateFormat();
       ZonedDateTime date = ZonedDateTime.parse(fieldAsStr, dtf);
-      event.setTimeStamp(date.toInstant().toEpochMilli());
+      long ts = date.toInstant().toEpochMilli();
+      event.setTimeStamp(ts);
+      dpi.cacheTimestamp(fieldAsStr, ts);
     } catch (DateTimeParseException e) {
       throw new IllegalArgumentException("Failed to parse a date", e);
     }

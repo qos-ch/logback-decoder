@@ -19,6 +19,7 @@ import com.google.common.cache.CacheBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -38,10 +39,13 @@ public class DatePatternInfo extends PatternInfo {
   private final DateTimeFormatter dateFormat;
   private final ZoneId defaultTimeZone;
   private final boolean noDateInPattern;
+  private final boolean useCache;
 
   private final Cache<LocalDate, DateTimeFormatter> dateTimeFormatterCache =
       CacheBuilder.newBuilder().maximumSize(10).build();
 
+  private final Cache<CharSequence, Long> timestampCache =
+      CacheBuilder.newBuilder().maximumSize(1000).build();
 
   public DatePatternInfo(String pattern, ZoneId defaultTimeZone) {
     DateTimeFormatter dtf = parseDateFormat(pattern);
@@ -52,6 +56,10 @@ public class DatePatternInfo extends PatternInfo {
       // if TimeZone is not specified in the pattern format, use the one provided.
       dtf = dtf.withZone(defaultTimeZone);
     }
+
+    // use cache iff the date time format doesn't contain milli/nano sec.
+    this.useCache = dtf != DatePatternInfo.ISO8601_FORMATTER && !pattern.contains(CoreConstants.ISO8601_STR.toLowerCase())
+        && !(pattern.contains("S") || pattern.contains("n") || pattern.contains("N") || pattern.contains("A"));
 
     this.dateFormat = dtf;
     this.defaultTimeZone = defaultTimeZone;
@@ -79,6 +87,16 @@ public class DatePatternInfo extends PatternInfo {
     }
 
     return dateFormat;
+  }
+
+  public @Nullable Long getCachedTimestamp(CharSequence text) {
+    return useCache ? timestampCache.getIfPresent(text) : null;
+  }
+
+  public void cacheTimestamp(CharSequence text, long timestamp) {
+    if (useCache) {
+      timestampCache.put(text, timestamp);
+    }
   }
 
   private static DateTimeFormatter parseDateFormat(String option) {

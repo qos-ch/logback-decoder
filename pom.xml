@@ -25,7 +25,7 @@
 
   <groupId>io.dashbase</groupId>
   <artifactId>logback-decoder</artifactId>
-  <version>0.2.1</version>
+  <version>0.2.2</version>
   <packaging>jar</packaging>
   <name>logback-decoder</name>
   <description>The logback log file decoder</description>

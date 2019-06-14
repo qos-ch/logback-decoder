@@ -68,23 +68,29 @@ public class Decoder {
 
     // only use patternInfo whose name matches names in namedGroups
     for (int i = 0; i < namedGroups.size(); i++) {
-      if (namedGroups.get(i).startsWith(PatternNames.MDC_PREFIX)) {
+      String namedGroup = namedGroups.get(i);
+      if (namedGroup.startsWith(PatternNames.MDC_PREFIX)
+          || namedGroup.startsWith(PatternNames.PROPERTY_PREFIX)) {
         continue;
       }
-      if (!Objects.equals(namedGroups.get(i), patternInfo.get(i).getName())) {
+      if (!Objects.equals(namedGroup, patternInfo.get(i).getName())) {
         throw new IllegalArgumentException(String.format(
             "BUG!! Saw a field name that did not match the pattern info's name! (index={} expected={} actual={})",
             i, namedGroups.get(i), patternInfo.get(i).getName()));
       }
     }
 
-    Map<String, String> mdcKeyMap = util.getProperties();
+    Map<String, String> keyMap = util.getProperties();
     parsers = new ArrayList<>();
     for (String pattName: namedGroups) {
       if (pattName.startsWith(PatternNames.MDC_PREFIX)) {
         String key = pattName.substring(PatternNames.MDC_PREFIX.length());
-        key = mdcKeyMap.getOrDefault(key, key);
+        key = keyMap.getOrDefault(key, key);
         parsers.add(new MDCValueParser(key));
+      } else if (pattName.startsWith(PatternNames.PROPERTY_PREFIX)) {
+        String key = pattName.substring(PatternNames.PROPERTY_PREFIX.length());
+        key = keyMap.getOrDefault(key, key);
+        parsers.add(new PropertyParser(key));
       } else {
         FieldCapturer<StaticLoggingEvent> parser = DECODER_MAP.get(pattName);
         if (parser == null) {
@@ -146,6 +152,8 @@ public class Decoder {
       put(PatternNames.METHOD_OF_CALLER, new MethodOfCallerParser());
       put(PatternNames.MESSAGE, new MessageParser());
       put(PatternNames.THREAD_NAME, new ThreadNameParser());
+      put(PatternNames.RELATIVE_TIME, new RelativeTimestampParser());
+      put(PatternNames.FILE_OF_CALLER, new FileNameParser());
       put(PatternNames.MDC, new MDCMapParser());
     }};
 }

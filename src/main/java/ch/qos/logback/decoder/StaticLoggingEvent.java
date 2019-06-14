@@ -30,6 +30,8 @@ public class StaticLoggingEvent extends LoggingEvent {
   private int    _lineNumberOfCaller;
   private String _methodNameOfCaller;
   private List<StackTraceElement> _callerStackTrace;
+  private long relativeTimestamp; // the number of milliseconds elapsed since the start of the application until the creation of the logging event.
+  private Map<String, String> properties = Collections.emptyMap();
 
   public Offset levelOffset;
   public Offset threadNameOffset;
@@ -38,6 +40,8 @@ public class StaticLoggingEvent extends LoggingEvent {
   public Offset classNameOfCallerOffset;
   public Offset methodOfCallerOffset;
   public Offset contextNameOffset;
+  public Offset fileNameOffset;
+  public Map<String, Offset> propertyOffsets = Collections.emptyMap();
   public Map<String, Offset> mdcPropertyOffsets = Collections.emptyMap();
 
   public void setCallerStackData(List<StackTraceElement> stackTrace) {
@@ -71,6 +75,10 @@ public class StaticLoggingEvent extends LoggingEvent {
     _methodNameOfCaller = methodName;
   }
 
+  public void setRelativeTimestamp(long relativeTimestamp) {
+    this.relativeTimestamp = relativeTimestamp;
+  }
+
   public String getClassNameOfCaller() {
     return _classNameOfCaller;
   }
@@ -89,6 +97,23 @@ public class StaticLoggingEvent extends LoggingEvent {
 
   public String getMethodOfCaller() {
     return _methodNameOfCaller;
+  }
+
+  public long getRelativeTimestamp() {
+    return relativeTimestamp;
+  }
+
+  public Map<String, String> getProperties() {
+    return this.properties;
+  }
+
+  public void putProperty(String key, String value, Offset offset) {
+    if (properties.isEmpty()) {
+      properties = new HashMap<>();
+      propertyOffsets = new HashMap<>();
+    }
+    properties.put(key, value);
+    propertyOffsets.put(key, offset);
   }
 
   public void putMDC(String key, String value, Offset offset) {

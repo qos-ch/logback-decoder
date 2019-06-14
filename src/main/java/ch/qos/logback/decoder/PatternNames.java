@@ -97,7 +97,8 @@ public class PatternNames {
   public static final String MARKER = "marker";
 
   public static final String PROPERTY = "property";
-  
+  public static final String PROPERTY_PREFIX = "PROPPROP";
+
   public static final String NEWLINE = "n";
   
   @SuppressWarnings("serial")

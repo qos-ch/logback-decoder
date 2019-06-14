@@ -63,7 +63,8 @@ public abstract class RegexPatterns {
   public static final String METHOD_OF_CALLER_REGEX = Common.IDENTIFIER_REGEX;
   public static final String MESSAGE_REGEX = Common.ANYTHING_MULTILINE_REGEX;
   public static final String LINE_SEPARATOR_REGEX = "\\r?\\n";
-  public static final String PROPERTY_REGEX = "Property_HAS_NO_KEY" + "|" + Common.ANYTHING_REGEX;
+  public static final String PROPERTY_REGEX_NO_KEY = "Property_HAS_NO_KEY";
+  public static final String PROPERTY_REGEX = Common.ANYTHING_REGEX;
   public static final String RELATIVE_TIME_REGEX = Common.INTEGER_REGEX;
   public static final String THREAD_NAME_REGEX = Common.ANYTHING_REGEX;
   public static final String EXCEPTION_REGEX = Common.STACKTRACE_REGEX;

@@ -12,7 +12,10 @@ public class MDCMapParser implements FieldCapturer<StaticLoggingEvent> {
         try {
             while (index < field.length()) {
                 // skip leading space
-                while (field.charAt(index) == ' ') index++;
+                if (field.charAt(index) == ' ') {
+                    index++;
+                    continue;
+                }
                 // get key
                 int keyStart = index;
                 while (field.charAt(index) != '=') index++;

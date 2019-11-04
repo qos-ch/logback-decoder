@@ -15,9 +15,12 @@ package ch.qos.logback.decoder;
 import ch.qos.logback.core.pattern.parser2.DatePatternInfo;
 import ch.qos.logback.core.pattern.parser2.PatternInfo;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 
 /**
  * A {@code DateParser} parses a date field from a string and populates the

@@ -14,6 +14,7 @@ package ch.qos.logback.core.pattern.parser2;
 
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.decoder.ParserUtil;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.slf4j.Logger;
@@ -47,11 +48,21 @@ public class DatePatternInfo extends PatternInfo {
   private final Cache<CharSequence, Long> timestampCache =
       CacheBuilder.newBuilder().maximumSize(1000).build();
 
+  private static String extractTimeFormat(String format) {
+    if (format == null) format = "";
+    var index = format.indexOf(",");
+    if (index >= 0) {
+      format = format.substring(0, index);
+    }
+    return format;
+  }
+
   public DatePatternInfo(String pattern, ZoneId defaultTimeZone) {
     DateTimeFormatter dtf = parseDateFormat(pattern);
 
-    pattern = pattern.toLowerCase();
-    this.noDateInPattern = dtf != DatePatternInfo.ISO8601_FORMATTER && !pattern.contains("d") && !pattern.contains(CoreConstants.ISO8601_STR.toLowerCase());
+    pattern = extractTimeFormat(pattern.toLowerCase());
+    this.noDateInPattern = dtf != DatePatternInfo.ISO8601_FORMATTER && (!pattern.contains("d") ||
+            (!pattern.contains("u") && !pattern.contains("y"))) && !pattern.contains(CoreConstants.ISO8601_STR.toLowerCase());
     if (dtf.getZone() == null  && !(pattern.contains("x") || pattern.contains("z"))) {
       // if TimeZone is not specified in the pattern format, use the one provided.
       dtf = dtf.withZone(defaultTimeZone);
@@ -76,7 +87,7 @@ public class DatePatternInfo extends PatternInfo {
       try {
         return dateTimeFormatterCache.get(today, () ->
           new DateTimeFormatterBuilder().append(dateFormat)
-              .parseDefaulting(ChronoField.YEAR_OF_ERA, today.getYear())
+              .parseDefaulting(ChronoField.YEAR, today.getYear())
               .parseDefaulting(ChronoField.MONTH_OF_YEAR, today.getMonthValue())
               .parseDefaulting(ChronoField.DAY_OF_MONTH, today.getDayOfMonth())
               .toFormatter().withZone(defaultTimeZone)

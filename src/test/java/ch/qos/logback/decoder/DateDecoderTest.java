@@ -16,9 +16,11 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.CoreConstants;
 import org.junit.Test;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -89,6 +91,36 @@ public class DateDecoderTest {
     final String FORMAT   = "yyyy-MM-dd hh:mm:ss.SSSa";
     final String INPUT    = "2013-06-15 03:55:00.123PM";
     assertThatDateDecoded(TIMEZONE, FORMAT, INPUT);
+  }
+
+  @Test
+  public void testTimeOnlyPattern() throws Exception {
+    final String TIMEZONE = "UTC";
+    final String FORMAT   = "\"HH:mm:ss\"";
+    final String INPUT    = "03:55:00";
+
+    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(ZoneOffset.UTC));
+    cal.setTimeInMillis(System.currentTimeMillis());
+    var year = new DecimalFormat("0000").format(cal.get(Calendar.YEAR));
+    var month = new DecimalFormat("00").format(cal.get(Calendar.MONTH) + 1);  // month is 0 based, so need to add 1
+    var day = new DecimalFormat("00").format(cal.get(Calendar.DAY_OF_MONTH));
+
+    var isoFormat = year + "-" + month + "-" + day + "T03:55:00";
+    var expected = ZonedDateTime.parse(isoFormat, DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC));
+    assertThatDateDecoded(TIMEZONE, FORMAT, INPUT, expected);
+  }
+
+  @Test
+  public void testNoYearPattern() throws Exception {
+    final String TIMEZONE = "UTC";
+    final String FORMAT   = "\"MMM dd HH:mm:ss\"";
+    final String INPUT    = "Apr 06 16:16:50";
+
+    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(ZoneOffset.UTC));
+    cal.setTimeInMillis(System.currentTimeMillis());
+    var year = new DecimalFormat("0000").format(cal.get(Calendar.YEAR));
+    var expected = ZonedDateTime.parse(year + "-04-06T16:16:50", DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC));
+    assertThatDateDecoded(TIMEZONE, FORMAT, INPUT, expected);
   }
 
   @Test
@@ -168,6 +200,10 @@ public class DateDecoderTest {
   }
 
   private void assertThatDateDecoded(String timeZoneName, String format, String input) throws ParseException {
+    assertThatDateDecoded(timeZoneName, format, input, null);
+  }
+
+  private void assertThatDateDecoded(String timeZoneName, String format, String input, ZonedDateTime expected) throws ParseException {
     if (format == null) format = "";
     if (timeZoneName == null) timeZoneName = "";
 
@@ -200,11 +236,15 @@ public class DateDecoderTest {
       sdf.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
     }
 
-
-    ZonedDateTime date = sdf.parse(input).toInstant().atZone(ZoneOffset.UTC);
-    if (date.getYear() == 1970) {
-      LocalDate today = LocalDate.now(ZoneOffset.UTC);
-      date = date.withYear(today.getYear()).withMonth(today.getMonthValue()).withDayOfMonth(today.getDayOfMonth());
+    ZonedDateTime date;
+    if (expected != null) {
+      date = expected;
+    } else {
+      date = sdf.parse(input).toInstant().atZone(ZoneOffset.UTC);
+      if (date.getYear() == 1970) {
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        date = date.withYear(today.getYear()).withMonth(today.getMonthValue()).withDayOfMonth(today.getDayOfMonth());
+      }
     }
 
     ILoggingEvent event = decoder.decode(input + " Hello world!\n");

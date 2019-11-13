@@ -12,20 +12,16 @@
  */
 package ch.qos.logback.decoder;
 
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.pattern.parser2.PatternInfo;
 import ch.qos.logback.core.pattern.parser2.PatternParser;
 import ch.qos.logback.decoder.regex.PatternLayoutRegexUtil;
+
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A {@code Decoder} parses information from a log string and produces an
@@ -47,9 +43,6 @@ public class Decoder {
     this(layoutPattern, ZoneOffset.UTC);
   }
 
-
-
-
   public Decoder(String layoutPattern, ZoneId defaultTimeZone) {
     if (layoutPattern == null) {
       throw new IllegalArgumentException("layoutPattern cannot be null");
@@ -64,11 +57,6 @@ public class Decoder {
 
     PatternLayoutRegexUtil util = new PatternLayoutRegexUtil();
     String regex = util.toRegex(layoutPattern) + "$";
-
-    //pad modifier on the left with spaces to a width of 3 or more, Matches between 3 to 50 e.g. p{30}\d{1}.
-    regex = regex.replaceAll("p[{][3-50][}]\\\\d[{][1][}]", "\\\\s+\\\\d{1,2}");
-    //pad modifier on the left with spaces to a width of 1 or 2
-    regex = regex.replaceAll("p[{][1-2][}]\\\\d[{][1][}]", "\\\\s?\\\\d{1,2}");
     this.regexPattern = Pattern.compile(regex);
 
     namedGroups = new ArrayList<>();

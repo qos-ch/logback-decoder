@@ -63,8 +63,8 @@ public class PatternLayoutRegexUtil {
     String patt = PatternParser.switchEscapeSequenceToSlashes(conversion);
 
 
-    //pad modifier on the left with spaces to a width of 3 or more, Matches between 3 to 50 e.g. p{30}\d{1}.
-    patt = patt.replaceAll("p[{][3-50][}]\\\\d[{][1][}]", "\\\\s+\\\\d{1,2}");
+    //pad modifier on the left with spaces to a width of 3 or more, Matches between 3 to 59 e.g. p{30}\d{1}.
+    patt = patt.replaceAll("p[{]([3-9]|[1-5][0-9])[}]\\\\d[{][1][}]", "\\\\s+\\\\d{1,2}");
     //pad modifier on the left with spaces to a width of 1 or 2
     patt = patt.replaceAll("p[{][1-2][}]\\\\d[{][1][}]", "\\\\s?\\\\d{1,2}");
     // Allow flexible spacing

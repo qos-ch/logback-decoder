@@ -97,6 +97,12 @@ public class DateDecoderTest {
 		dateTime = LocalDateTime.of(2019, 11, 14, 04, 28, 21, 0);
 		assertEquals(ZonedDateTime.of(dateTime, ZoneOffset.UTC).toInstant().toEpochMilli(), event.getTimeStamp());
 
+		decoder = new Decoder("%d{\"yyyy MMM ppd pppppH:mm:ss\"}");
+		String dateStringWithMultipleSpace = "2019 Nov 14     4:28:21";
+		event = decoder.decode(dateStringWithMultipleSpace);
+		dateTime = LocalDateTime.of(2019, 11, 14, 04, 28, 21, 0);
+		assertEquals(ZonedDateTime.of(dateTime, ZoneOffset.UTC).toInstant().toEpochMilli(), event.getTimeStamp());
+
 	}
 
   @Test
@@ -138,6 +144,7 @@ public class DateDecoderTest {
     var isoFormat = year + "-" + month + "-" + day + "T03:55:00";
     var expected = ZonedDateTime.parse(isoFormat, DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC));
     assertThatDateDecoded(TIMEZONE, FORMAT, INPUT, expected);
+
   }
 
   @Test

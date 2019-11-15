@@ -12,20 +12,25 @@
  */
 package ch.qos.logback.decoder;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.CoreConstants;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
+
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.CoreConstants;
 
 /**
  * Tests decoding %date
@@ -68,6 +73,38 @@ public class DateDecoderTest {
     assertThatDateDecoded("", FORMAT, INPUT);
   }
 
+	@Test
+	public void decodesDateWithPadModifierFormat() throws ParseException {
+		String dateString = "2018-02-28 12:00:00,000";
+		Decoder decoder = new Decoder("%d");
+		String dateStringWithTZ = "2018- 2-28T12:00:00.000-0700";
+		decoder = new Decoder("%d{\"yyyy-ppM-dd'T'HH:mm:ss.SSSZ\"}");
+		ILoggingEvent event = decoder.decode(dateString);
+		event = decoder.decode(dateStringWithTZ);
+		LocalDateTime dateTime = LocalDateTime.of(2018, 2, 28, 12, 0, 0, 0);
+
+		assertEquals(ZonedDateTime.of(dateTime, ZoneOffset.ofHours(-7)).toInstant().toEpochMilli(),
+				event.getTimeStamp());
+
+		decoder = new Decoder("%d{\"yyyy MMM ppd HH:mm:ss\"}");
+		String dateStringWithSpace = "2019 Nov  4 04:28:21";
+		String dateStringWithNoSpace = "2019 Nov 14 04:28:21";
+		event = decoder.decode(dateStringWithSpace);
+		dateTime = LocalDateTime.of(2019, 11, 4, 04, 28, 21, 0);
+		assertEquals(ZonedDateTime.of(dateTime, ZoneOffset.UTC).toInstant().toEpochMilli(), event.getTimeStamp());
+
+		event = decoder.decode(dateStringWithNoSpace);
+		dateTime = LocalDateTime.of(2019, 11, 14, 04, 28, 21, 0);
+		assertEquals(ZonedDateTime.of(dateTime, ZoneOffset.UTC).toInstant().toEpochMilli(), event.getTimeStamp());
+
+		decoder = new Decoder("%d{\"yyyy MMM ppd pppppH:mm:ss\"}");
+		String dateStringWithMultipleSpace = "2019 Nov 14     4:28:21";
+		event = decoder.decode(dateStringWithMultipleSpace);
+		dateTime = LocalDateTime.of(2019, 11, 14, 04, 28, 21, 0);
+		assertEquals(ZonedDateTime.of(dateTime, ZoneOffset.UTC).toInstant().toEpochMilli(), event.getTimeStamp());
+
+	}
+
   @Test
   public void decodesDateWithSpecificDateFormatAndFullTimeZoneName() throws ParseException {
     final String TIMEZONE = "Australia/Perth";
@@ -107,6 +144,7 @@ public class DateDecoderTest {
     var isoFormat = year + "-" + month + "-" + day + "T03:55:00";
     var expected = ZonedDateTime.parse(isoFormat, DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC));
     assertThatDateDecoded(TIMEZONE, FORMAT, INPUT, expected);
+
   }
 
   @Test
